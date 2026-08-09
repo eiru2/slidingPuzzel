@@ -62,24 +62,7 @@ class App:
             
 
             # left click
-            self.leftclick.click(self)
-            # if self.timer > cf.TresholdDubleClik and self.timer < cf.TrasholdHolde and self.clickCunter >= 2  :
-            #     self.input["left_duble_click"] = True
-            #     self.clickCunter = 0
-                
-            # elif self.timer > cf.TresholdDubleClik and self.timer < cf.TrasholdHolde and self.clickCunter == 1 and not self.clicked :
-            #     self.input["left_click"] = True
-            #     self.clickCunter = 0
-            
-            # if self.timer > cf.TrasholdHolde:
-            #     self.inputHold["left_click"] = True
-                
-            # if self.timer > cf.TresholdDubleClik and not self.clicked:
-            #     self.timer = 0
-            #     self.time = False
-            # self.clickCunter = 0
-            
-            
+            self.leftclick.click(self)            
             
         for event in pg.event.get():     
             if event.type == pg.QUIT:

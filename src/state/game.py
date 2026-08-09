@@ -29,13 +29,12 @@ class Game(State):
             self.grid.debug()
             
         if action["textInput"] =="p":
+            # solve the puzzle
             self.path = start_search(self.grid)
-                
-                
             print(self.path, "Path")
-
             cf.tick = 5
             self.fundPath = True
+            
 
         if action["textInput"] =="t":
             print(self.grid.preMove)

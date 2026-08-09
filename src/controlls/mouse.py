@@ -6,7 +6,11 @@ class LeftClick:
         pass
     
     def click(self, app):
-        
+        """Mange left click
+
+        Args:
+            app (class): 
+        """
         #  print(app.timer)
         
         if app.timer > cf.TresholdDubleClik and app.timer < cf.TrasholdHolde and app.clickCunter >= 2  :

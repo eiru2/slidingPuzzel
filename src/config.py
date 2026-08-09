@@ -1,8 +1,10 @@
 WIDTH = 1600
 HEIGHT = 800
 
+#frame rate
 tick = 0
 
+#click values 
 TrasholdHolde = 0.3 # sekkunder
 TresholdDubleClik = 0.2
 
