@@ -1,5 +1,5 @@
-WIDTH = 1900
-HEIGHT = 1200
+WIDTH = 1600
+HEIGHT = 800
 
 tick = 0
 
@@ -26,3 +26,7 @@ fargerKey = []
 for key in farger:
     if not key == "MØRK GRÅ" and not key == "SVART":
         fargerKey.append(key)
+        
+        
+# løser
+max_depth =  50
