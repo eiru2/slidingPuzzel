@@ -1,6 +1,6 @@
 import pygame as pg
 import os 
-import config as cf
+import src.config as cf
 
 from state.statet import State
 
