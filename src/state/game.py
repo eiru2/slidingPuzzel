@@ -25,30 +25,28 @@ class Game(State):
             mous_pos = pg.mouse.get_pos()
             self.grid.update(mous_pos)
         
-        if action["textInput"] =="q":
+        if action["debug"]:
+            print("debug")
             self.grid.debug()
+            print("prewes moves")
+            print(self.grid.preMove)
+            print("complet status")
+            print(self.grid.win())
             
-        if action["textInput"] =="p":
+        if action["solver"]:
             # solve the puzzle
             self.path = start_search(self.grid)
             print(self.path, "Path")
             cf.tick = 5
             self.fundPath = True
             
-
-        if action["textInput"] =="t":
-            print(self.grid.preMove)
-        
-        if action["textInput"] =="u":
-            print("fdgfhdfg")
+        if action["undoMove"]:
             self.grid.undoMove()
-
-            
-        if action["textInput"] =="w":
-            print(self.grid.win())
             
         if action["textInput"] =="l":
             self.grid.load_gride_state("0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15")
+            
+            
             
         if self.fundPath:
             if len(self.path) == 0:

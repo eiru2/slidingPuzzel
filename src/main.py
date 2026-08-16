@@ -17,7 +17,7 @@ class App:
         # self.screen_render = pg.display.set_mode((cf.BREDDE,cf.Hoyte))
         self.run = True
         
-        self.input = {"left_click":False, "left_duble_click":False, "arrow_left": False, "arrow_right": False, "scroll_wheel": 0, "textInput": ""}
+        self.input = {"left_click":False, "left_duble_click":False, "arrow_left": False, "arrow_right": False, "scroll_wheel": 0, "textInput": "", "undoMove": False, "solver": False , "debug": False}
         self.inputHold = {"left_click":False}
         
         self.clock = pg.time.Clock()
@@ -28,10 +28,10 @@ class App:
         
         self.state_stack = []
         self.state_dict = {
-            "InputDebuger" : InputDebuger,
+            "inputDebuger" : InputDebuger,
             "menu": Menu,
             "test": Test,
-            "Game": Game,
+            "game": Game,
         }
         
         self.leftclick = LeftClick()
@@ -89,6 +89,15 @@ class App:
 
             
             if event.type == pg.KEYDOWN:
+                # normal input
+                if event.key in cf.undoMove:
+                    self.input["undoMove"] = True
+                if event.key in cf.solver:
+                    self.input["solver"] = True
+                if event.key in cf.debuger:
+                    self.input["debug"] = True
+                
+                # text input
                 if  event.key == pg.K_LEFT:
                     self.input["arrow_left"] = True
                 if  event.key == pg.K_RIGHT:
@@ -133,7 +142,7 @@ class App:
         """laster in den første staten
         """
         # self.title_screen = self.state_dict["lagre_kap"](self)
-        self.title_screen = self.state_dict["Game"](self)
+        self.title_screen = self.state_dict["game"](self)
         
         self.state_stack.append(self.title_screen)
         

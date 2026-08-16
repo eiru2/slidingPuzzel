@@ -7,10 +7,10 @@ pygame.font.init()
 
 class Button:
     def __init__(self,pos,text="none",textCooler=farger["SVART"], fontSize = text_medium, font="Arial" , buttonsize=(100,100), buttonCooler =farger["HVIT"] , returnValue=True, state_ref=None):
-        """_summary_
+        """
             for å lagge en knap som returner
         Args:
-            pos (list): kordinater til knapen
+            pos (list): kordinater til knapen (top-left)
             text (str, optional): Hva som skal sto po kanpen. Defaults to "none".
             textCooler (tuple, optional): farge po teksten. Defaults to (0,0,0).
             fontSize (int, optional): storelse po teksten. Defaults to 11.

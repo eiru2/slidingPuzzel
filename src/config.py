@@ -1,3 +1,5 @@
+import pygame as pg
+
 WIDTH = 1600
 HEIGHT = 800
 
@@ -32,3 +34,12 @@ for key in farger:
         
 # løser
 max_depth =  50
+
+# text
+text_medium = 44
+
+
+# deffult controlls
+undoMove = [pg.K_u]
+solver = [pg.K_s]
+debuger = [pg.K_d] 
