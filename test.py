@@ -17,5 +17,8 @@ b = 0
 # print(a,b)
 
 
-a ="1 2 3 4 5 6 7 8 9 0 10"
-print(a.split())
+# a ="1 2 3 4 5 6 7 8 9 0 10"
+# print(a.split())
+
+for i in range(0,-2,-1):
+    print(i)
