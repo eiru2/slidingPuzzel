@@ -81,37 +81,40 @@ class Grid:
             print("correct")
             print(pos)
             # self.move(pos)
-            print(self.testMove(pos))
+            moves = self.testMove(pos)
+            print(moves.reverse())
+            for move in moves:
+                self.move(move)
     
-    def move(self, pos):
-        if self.grid[pos[0]][pos[1]].number == 0:
+    def move(self, move):
+        if self.grid[move[0]][move[1]].number == 0:
             # print(0)
-            return False
+            return []
         
         for x,y in Neghibor:
-            Negibor_pos = [pos[0]+x,pos[1]+y]
+            Negibor_pos = [move[0]+x,move[1]+y]
             # print(Negibor_pos, x,y) 
             if 0 <= Negibor_pos[0] < self.rutter[0] and 0 <= Negibor_pos[1] < self.rutter[1]:
                 if self.grid[Negibor_pos[0]][Negibor_pos[1]].number == 0:
                     # print("vellyket")
-                    self.preMove.append(self.grid[pos[0]][pos[1]].number)
+                    self.preMove.append(self.grid[move[0]][move[1]].number)
                     
-                    self.grid[Negibor_pos[0]][Negibor_pos[1]],self.grid[pos[0]][pos[1]] = self.grid[pos[0]][pos[1]],self.grid[Negibor_pos[0]][Negibor_pos[1]]
+                    self.grid[Negibor_pos[0]][Negibor_pos[1]],self.grid[move[0]][move[1]] = self.grid[move[0]][move[1]],self.grid[Negibor_pos[0]][Negibor_pos[1]]
                     
                     self.grid[Negibor_pos[0]][Negibor_pos[1]].pos_gride = Negibor_pos
-                    self.grid[pos[0]][pos[1]].pos_gride = pos
-                    self.zeroPos = pos
+                    self.grid[move[0]][move[1]].pos_gride = move
+                    self.zeroPos = move
  
     def testMove(self, pos):
         if self.grid[pos[0]][pos[1]].number == 0:
             # print(0)
-            return False
+            return []
         
         in_same_y = (pos[1] == self.zeroPos[1])
         in_same_x = (pos[0] == self.zeroPos[0])
         
         if not (in_same_y or in_same_x):
-            return False 
+            return [] 
         
         moves = []
         if in_same_x:
@@ -119,69 +122,16 @@ class Grid:
             print(abs(y)//y)
             for i in range(0,y, abs(y)//y):
                 moves.append((pos[0],pos[1]+i))
-            return moves,y
+            return moves
         
         if in_same_y:
             x = self.zeroPos[0] - pos[0]
             print(abs(x)//x)
             for i in range(0,x, abs(x)//x ):
                 moves.append((pos[0]+i,pos[1]))
-            return moves,x
-        
+            return moves
 
-        
-# '        moves = []
-#         edge = False
-#         if pos[1] == self.zeroPos[1]:
-#             x = 1
-#             moves.append(pos)
-#             while not edge:
-#                 print(pos, "x: ", x,moves)
-#                 if not (0 <= pos[0]+x < self.rutter[0] and 0 <= pos[1] < self.rutter[1]):
-#                     moves = [pos]
-#                     edge = True
-#                     break
-#                 if self.grid[pos[0]+x][pos[1]].number == 0: return moves,1
-#                 moves.append((pos[0]+x,pos[1]))
-#                 x+=1
-            
-#             edge = False
-#             x = -1
-#             while not edge:
-#                 print(pos, "x: ", x,moves)
-#                 if not (0 <= pos[0]+x < self.rutter[0] and 0 <= pos[1] < self.rutter[1]):
-#                     moves = []
-#                     edge = True
-#                     break
-#                 if self.grid[pos[0]+x][pos[1]].number == 0: return moves,2
-#                 moves.append((pos[0]+x,pos[1]))
-#                 x-=1
-         
-#         elif pos[0] == self.zeroPos[0]:
-#             y = 1
-#             moves.append(pos)
-#             while not edge:
-#                 print(pos, "y: ", y,moves)
-#                 if not (0 <= pos[0] < self.rutter[0] and 0 <= pos[1]+y < self.rutter[1]):
-#                     moves = [pos]
-#                     edge = True
-#                     break
-#                 if self.grid[pos[0]][pos[1]+y].number == 0: return moves,3
-#                 moves.append((pos[0],pos[1]+y))
-#                 y+=1
-
-#             edge = False
-#             y = -1
-#             while not edge:
-#                 print(pos, "y: ", y,moves)
-#                 if not (0 <= pos[0] < self.rutter[0] and 0 <= pos[1]+y < self.rutter[1]):
-#                     moves = []
-#                     edge = True
-#                     break
-#                 if self.grid[pos[0]][pos[1]+y].number == 0: return moves,4
-#                 moves.append((pos[0],pos[1]+y))
-#                 y-=1'
-        return moves, "inegenting"
+        return []
     
     def undoMove(self):
         for x in range(self.rutter[0]):

@@ -13,7 +13,7 @@ class Game(State):
         super().__init__(app)
         self.buttons = []
         
-        self.grid = Grid((4,4), (cf.WIDTH , cf.HEIGHT))
+        self.grid = Grid(cf.grideSize, (cf.WIDTH , cf.HEIGHT))
         self.grid.shuffel(100000)
         print(self.grid.muligMoves([-1,-1]))
         self.path = []

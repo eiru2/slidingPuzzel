@@ -24,6 +24,11 @@ class Menu(State):
                 match button.click(pos):
                     case "tilfeldig":
                         print("tilfeldig")
+                        new_state = self.app.state_dict["game"](self.app)
+                        new_state.enter_state()
+                        self.app.rest_keys()
+                        
+
                     case "level":
                         print("level")
                     case "instilinger":

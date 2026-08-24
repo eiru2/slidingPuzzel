@@ -35,6 +35,8 @@ for key in farger:
 # løser
 max_depth =  50
 
+# Gride size
+grideSize = [3,3]
 # text
 text_medium = 44
 
@@ -43,3 +45,5 @@ text_medium = 44
 undoMove = [pg.K_u]
 solver = [pg.K_s]
 debuger = [pg.K_d] 
+
+
