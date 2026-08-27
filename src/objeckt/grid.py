@@ -34,14 +34,14 @@ class tile:
 
         # print(self.number, tile_x,tile_y, self.pos_Gride)
         text_rect = text_surf.get_rect(center=(tile_x + self.size[0] // 2,
-                                            tile_y + self.size[1] // 2))
+                                               tile_y + self.size[1] // 2))
         surface.blit(text_surf, text_rect)
 
 
 
 Neghibor = [(-1,0),(1,0),(0,-1),(0,1)]     
 class Grid:
-    def __init__(self,rutter, windowSize):
+    def __init__(self,rutter, windowSize, picture):
         self.rutter = list(rutter)
         self.windowSize = list(windowSize)
         self.tilesize_rect = [
@@ -81,75 +81,87 @@ class Grid:
             print("correct")
             print(pos)
             # self.move(pos)
-            moves = self.testMove(pos)
-            print(moves.reverse())
+            moves, numbers = self.FindMoves(pos)
+            # self.preMove.append(numbers)
+            # print(numbers)
+            # print(moves.reverse())
+            self.preMove.append([])
+            moves.reverse()
             for move in moves:
-                self.move(move)
+                self.preMove[-1].append(self.move(move))
     
     def move(self, move):
         if self.grid[move[0]][move[1]].number == 0:
             # print(0)
             return []
-        
+        moves = None
         for x,y in Neghibor:
-            Negibor_pos = [move[0]+x,move[1]+y]
+            Negibor_pos = (move[0]+x,move[1]+y)
             # print(Negibor_pos, x,y) 
             if 0 <= Negibor_pos[0] < self.rutter[0] and 0 <= Negibor_pos[1] < self.rutter[1]:
                 if self.grid[Negibor_pos[0]][Negibor_pos[1]].number == 0:
                     # print("vellyket")
-                    self.preMove.append(self.grid[move[0]][move[1]].number)
-                    
+                    # self.preMove.append(self.grid[move[0]][move[1]].number)
                     self.grid[Negibor_pos[0]][Negibor_pos[1]],self.grid[move[0]][move[1]] = self.grid[move[0]][move[1]],self.grid[Negibor_pos[0]][Negibor_pos[1]]
                     
                     self.grid[Negibor_pos[0]][Negibor_pos[1]].pos_gride = Negibor_pos
                     self.grid[move[0]][move[1]].pos_gride = move
                     self.zeroPos = move
+                    moves = Negibor_pos
+
+        return moves
  
-    def testMove(self, pos):
+    def FindMoves(self, pos):
         if self.grid[pos[0]][pos[1]].number == 0:
             # print(0)
-            return []
+            return [], []
         
         in_same_y = (pos[1] == self.zeroPos[1])
         in_same_x = (pos[0] == self.zeroPos[0])
         
         if not (in_same_y or in_same_x):
-            return [] 
+            return [], []
         
         moves = []
+        numberTile = []
         if in_same_x:
             y = self.zeroPos[1] - pos[1]
             print(abs(y)//y)
             for i in range(0,y, abs(y)//y):
                 moves.append((pos[0],pos[1]+i))
-            return moves
+                numberTile.append(self.grid[pos[0]][pos[1]+i].number)
+            return moves, numberTile
         
         if in_same_y:
             x = self.zeroPos[0] - pos[0]
             print(abs(x)//x)
             for i in range(0,x, abs(x)//x ):
                 moves.append((pos[0]+i,pos[1]))
-            return moves
+                numberTile.append(self.grid[pos[0]+i][pos[1]].number)
+            return moves, numberTile
 
         return []
     
     def undoMove(self):
-        for x in range(self.rutter[0]):
-            for y in range(self.rutter[1]):
-                # print(x,y)
-                if len(self.preMove) == 0:
-                    # print(1)
-                    return [-1,-1]
-                elif self.grid[x][y].number == 0:
-                    pass
-                elif self.grid[x][y].number == self.preMove[-1]:
-                    self.move([x,y])
-                    self.preMove.pop()
-                    self.preMove.pop()
-                    return [x,y]
+        if len(self.preMove) == 0:
+            return False
+        self.preMove[-1].reverse()
+        for move in self.preMove[-1]:
+            print(move)
+            if len(self.preMove[-1]) == 0:
+                # print(1)
+                return False
+            elif self.grid[move[0]][move[1]].number == 0:
+                pass
+            else:
+                self.move(move)
+
+        self.preMove.pop()
+
+
         
     def shuffel(self, moves):
-
+        self.preMove=[[]]
         for i in range(moves):
             moved = False
             while not moved:
@@ -211,7 +223,7 @@ class Grid:
                 self.grid[x][y].draw(surface, self.pos)
     
     def debug(self):
-        print(self.grid)
+        # print(self.grid)
         print("-------------")
         for y in range(len(self.grid)):
             for x in range(len(self.grid[y])):

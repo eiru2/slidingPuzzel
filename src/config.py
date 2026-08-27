@@ -36,7 +36,7 @@ for key in farger:
 max_depth =  50
 
 # Gride size
-grideSize = [3,3]
+grideSize = [4,4]
 # text
 text_medium = 44
 
