@@ -16,7 +16,7 @@ class App:
         self.screen = pg.display.set_mode((cf.WIDTH,cf.HEIGHT))
         # self.screen_render = pg.display.set_mode((cf.BREDDE,cf.Hoyte))
         self.run = True
-        
+
         self.input = {"left_click":False, "left_duble_click":False, "arrow_left": False, "arrow_right": False, "scroll_wheel": 0, "textInput": "", "undoMove": False, "solver": False , "debug": False}
         self.inputHold = {"left_click":False}
         
@@ -67,9 +67,9 @@ class App:
         for event in pg.event.get():     
             if event.type == pg.QUIT:
                 self.run = False
-                exit()
                 pg.quit()
-                
+                exit()
+
             if event.type == pg.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     self.clickCunter += 1
@@ -133,7 +133,7 @@ class App:
         """
         self.screen.fill(cf.farger["MØRK GRÅ"])
         self.state_stack[-1].render(self.screen)
-        self.showFPS(self.screen)
+        #self.showFPS(self.screen)
         self.clock.tick(cf.tick)
         pg.display.update()
         
@@ -142,9 +142,9 @@ class App:
         """laster in den første staten
         """
         # self.title_screen = self.state_dict["lagre_kap"](self)
-        self.title_screen = self.state_dict["menu"](self)
+        title_screen = self.state_dict["test"](self)
         
-        self.state_stack.append(self.title_screen)
+        self.state_stack.append(title_screen)
         
     def rest_keys(self):
         """rester input fra spiller

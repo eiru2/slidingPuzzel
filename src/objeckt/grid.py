@@ -2,7 +2,7 @@ import pygame as pg
 from random import choice
 from config import farger, fargerKey
 
-class tile:
+class Tile:
     def __init__(self,number,gridePos, size):
         self.number = number
         self.pos_gride = list(gridePos)
@@ -44,16 +44,16 @@ class Grid:
     def __init__(self,rutter, windowSize, picture):
         self.rutter = list(rutter)
         self.windowSize = list(windowSize)
-        self.tilesize_rect = [
+        self.tileSizeRect = [
             self.windowSize[0]//self.rutter[0],
             self.windowSize[1]//self.rutter[1]      
             ]
-        self.tilesize = min(self.tilesize_rect)
+        self.tileSize = min(self.tileSizeRect)
         
         
         self.pos = [
-            (self.windowSize[0]-self.tilesize*rutter[0])/2,
-            (self.windowSize[1]-self.tilesize*rutter[1])/2
+            (self.windowSize[0] - self.tileSize * rutter[0]) / 2,
+            (self.windowSize[1] - self.tileSize * rutter[1]) / 2
             ]
         
         self.grid = []
@@ -65,7 +65,7 @@ class Grid:
         i = 1
         for y in range(self.rutter[1]):
             for x in range(self.rutter[0]):
-                self.grid[x][y] = tile(i,(x,y),(self.tilesize,self.tilesize))
+                self.grid[x][y] = Tile(i, (x, y), (self.tileSize, self.tileSize))
                 i+=1
         self.grid[-1][-1].number = 0
         self.zeroPos = [self.rutter[0]-1,self.rutter[1]-1]
@@ -74,8 +74,8 @@ class Grid:
         
     def update(self, pos_mous):
         pos = [
-            int((pos_mous[0]-self.pos[0])//self.tilesize),
-            int((pos_mous[1]-self.pos[1])//self.tilesize)
+            int((pos_mous[0]-self.pos[0]) // self.tileSize),
+            int((pos_mous[1]-self.pos[1]) // self.tileSize)
         ]
         if 0 <= pos[0] < self.rutter[0] and 0 <= pos[1] < self.rutter[1]:
             print("correct")
@@ -157,6 +157,7 @@ class Grid:
                 self.move(move)
 
         self.preMove.pop()
+        return False
 
 
         
@@ -217,7 +218,6 @@ class Grid:
     
     def draw(self,surface):
         # print("-------------------------------------------------")
-        i = 0
         for x in range(len(self.grid)):
             for y in range(len(self.grid[x])):
                 self.grid[x][y].draw(surface, self.pos)
