@@ -132,6 +132,7 @@ class App:
         """KJøre render methoden for den sit lagt til state i stacken
         """
         self.screen.fill(cf.farger["MØRK GRÅ"])
+        self.screen.fill(cf.farger["HVIT"])
         self.state_stack[-1].render(self.screen)
         #self.showFPS(self.screen)
         self.clock.tick(cf.tick)
