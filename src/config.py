@@ -1,4 +1,5 @@
 import pygame as pg
+from cryptography.hazmat.primitives import padding
 
 WIDTH = 1600
 HEIGHT = 800
@@ -7,8 +8,8 @@ HEIGHT = 800
 tick = 0
 
 #click values 
-TrasholdHolde = 0.3 # sekkunder
-TresholdDubleClik = 0.2
+TrasholdHolde = 0.2 # sekkunder
+TresholdDubleClik = 0.1
 
 ScrollSpeed = 10
 
@@ -37,6 +38,8 @@ max_depth =  50
 
 # Gride size
 grideSize = [4,4]
+pading = 50
+imageBorder = 10
 # text
 text_medium = 44
 

@@ -36,3 +36,6 @@ class Shadow:
 
         img.blit(self.image,(self.shadowSize,self.shadowSize))
         return img
+
+    def draw(self, surface):
+        surface.blit(self.imageShadow,(self.pos[0]-self.shadowSize,self.pos[1]-self.shadowSize))

@@ -1,13 +1,17 @@
 import pygame as pg
 from random import choice
-from config import farger, fargerKey
+from config import farger, fargerKey,imageBorder,pading
+from gui import Shadow,imageFram,imageBorderCut
 
 class Tile:
-    def __init__(self,number,gridePos, size):
+    def __init__(self,number,gridePos, size, picture=False):
         self.number = number
         self.pos_gride = list(gridePos)
         self.size = list(size)
         self.font = pg.font.Font(None, int(self.size[1] * 0.6))   # scale text to tile height
+
+        self.image = picture
+
     
     def update(self):
         pass
@@ -15,18 +19,23 @@ class Tile:
     def draw(self,surface, pos):
         if self.number == 0:
             return 0
-        
-        pg.draw.rect(surface, 
-        farger[fargerKey[self.number%len(fargerKey)]],
-        (
-            pos[0] + self.pos_gride[0]*self.size[0],
-            pos[1] + self.pos_gride[1]*self.size[1],
-            self.size[0],
-            self.size[1]
-        )
-        )
+        if not self.image:
+            pg.draw.rect(surface,
+            farger[fargerKey[self.number%len(fargerKey)]],
+            (
+                pos[0] + self.pos_gride[0]*self.size[0],
+                pos[1] + self.pos_gride[1]*self.size[1],
+                self.size[0],
+                self.size[1])
+                )
+        rect = (pos[0] + self.pos_gride[0]*self.size[0],pos[1] + self.pos_gride[1]*self.size[1],self.size[0],self.size[1])
+
+        surface.blit(self.image,rect)
+        #pg.draw.rect(surface,(0,0,0),rect,1)
+        return False
+
                 # --- draw number in center ---
-        text_surf = self.font.render(str(self.number), True, (0, 0, 0))
+        text_surf = self.font.render(str(self.number), True, (255, 0, 0))
 
         # center the text inside the tile
         tile_x = pos[0] + self.pos_gride[0] * self.size[0]
@@ -42,20 +51,38 @@ class Tile:
 Neghibor = [(-1,0),(1,0),(0,-1),(0,1)]     
 class Grid:
     def __init__(self,rutter, windowSize, picture):
+        self.border = imageBorder
+
         self.rutter = list(rutter)
         self.windowSize = list(windowSize)
+
         self.tileSizeRect = [
-            self.windowSize[0]//self.rutter[0],
-            self.windowSize[1]//self.rutter[1]      
+            (self.windowSize[0] - self.border-pading) // self.rutter[0],
+            (self.windowSize[1] - self.border-pading) // self.rutter[1]
             ]
         self.tileSize = min(self.tileSizeRect)
-        
-        
+
+
         self.pos = [
             (self.windowSize[0] - self.tileSize * rutter[0]) / 2,
             (self.windowSize[1] - self.tileSize * rutter[1]) / 2
             ]
-        
+        # includer ikke border
+        self.gridSize = [self.tileSize*rutter[0],self.tileSize*rutter[1]]
+
+        self.image = picture
+        imageSize = self.image.get_size()
+        x,y =  (self.tileSize*rutter[0]+self.border*2)/imageSize[0], (self.tileSize*rutter[1]+self.border*2)/imageSize[1]
+        self.image = pg.transform.scale_by(self.image,max(x,y))
+        self.imageCroped = pg.Surface((self.gridSize[0]+self.border*2,self.gridSize[1]+self.border*2))
+        self.imageCroped.blit( self.image,(0,0,self.gridSize[0]+self.border*2,self.gridSize[1]+self.border*2))
+        self.image = self.imageCroped
+
+
+        self.imgInner = imageBorderCut(self.image, self.border)
+        self.imgborder = imageFram(self.image, self.border)
+        self.imgborder = Shadow((self.pos[0]-self.border,self.pos[1]-self.border),self.imgborder,10)
+
         self.grid = []
         for x in range(self.rutter[0]):
             self.grid.append([])
@@ -65,7 +92,9 @@ class Grid:
         i = 1
         for y in range(self.rutter[1]):
             for x in range(self.rutter[0]):
-                self.grid[x][y] = Tile(i, (x, y), (self.tileSize, self.tileSize))
+                tilePicture = pg.Surface((self.tileSize,self.tileSize))
+                tilePicture.blit(self.imgInner, (0,0),(x*self.tileSize,y*self.tileSize,self.tileSize,self.tileSize))
+                self.grid[x][y] = Tile(i, (x, y), (self.tileSize, self.tileSize),tilePicture)
                 i+=1
         self.grid[-1][-1].number = 0
         self.zeroPos = [self.rutter[0]-1,self.rutter[1]-1]
@@ -218,6 +247,10 @@ class Grid:
     
     def draw(self,surface):
         # print("-------------------------------------------------")
+        if self.image:
+            self.imgborder.draw(surface)
+            #surface.blit(self.imginner,self.pos)
+
         for x in range(len(self.grid)):
             for y in range(len(self.grid[x])):
                 self.grid[x][y].draw(surface, self.pos)
@@ -225,8 +258,8 @@ class Grid:
     def debug(self):
         # print(self.grid)
         print("-------------")
-        for y in range(len(self.grid)):
-            for x in range(len(self.grid[y])):
+        for y in range(self.rutter[1]):
+            for x in range(self.rutter[0]):
                 print(self.grid[x][y].number, "  " , end="")
             print("")
         # print(self.grid)

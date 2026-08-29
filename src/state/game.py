@@ -12,8 +12,8 @@ class Game(State):
     def __init__(self, app):
         super().__init__(app)
         self.buttons = []
-        
-        self.grid = Grid(cf.grideSize, (cf.WIDTH , cf.HEIGHT))
+        image = pg.image.load('./Data/picture/gun.png').convert_alpha()
+        self.grid = Grid(cf.grideSize, (cf.WIDTH , cf.HEIGHT),image)
         self.grid.shuffel(100000)
         print(self.grid.muligMoves([-1,-1]))
         self.path = []

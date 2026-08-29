@@ -132,7 +132,7 @@ class App:
         """KJøre render methoden for den sit lagt til state i stacken
         """
         self.screen.fill(cf.farger["MØRK GRÅ"])
-        self.screen.fill(cf.farger["HVIT"])
+        #self.screen.fill(cf.farger["HVIT"])
         self.state_stack[-1].render(self.screen)
         #self.showFPS(self.screen)
         self.clock.tick(cf.tick)
@@ -142,8 +142,8 @@ class App:
     def load_state(self):
         """laster in den første staten
         """
-        # self.title_screen = self.state_dict["lagre_kap"](self)
-        title_screen = self.state_dict["test"](self)
+        #self.title_screen = self.state_dict["lagre_kap"](self)
+        title_screen = self.state_dict["game"](self)
         
         self.state_stack.append(title_screen)
         
