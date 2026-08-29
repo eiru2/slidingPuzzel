@@ -12,6 +12,8 @@ class Tile:
 
         self.image = picture
 
+        self.showNumber = False
+
     
     def update(self):
         pass
@@ -32,19 +34,19 @@ class Tile:
 
         surface.blit(self.image,rect)
         #pg.draw.rect(surface,(0,0,0),rect,1)
-        return False
 
-                # --- draw number in center ---
-        text_surf = self.font.render(str(self.number), True, (255, 0, 0))
+        if self.showNumber:
+            # --- draw number in center ---
+            text_surf = self.font.render(str(self.number), True, (255, 0, 0))
 
-        # center the text inside the tile
-        tile_x = pos[0] + self.pos_gride[0] * self.size[0]
-        tile_y = pos[1] + self.pos_gride[1] * self.size[1]
+            # center the text inside the tile
+            tile_x = pos[0] + self.pos_gride[0] * self.size[0]
+            tile_y = pos[1] + self.pos_gride[1] * self.size[1]
 
-        # print(self.number, tile_x,tile_y, self.pos_Gride)
-        text_rect = text_surf.get_rect(center=(tile_x + self.size[0] // 2,
-                                               tile_y + self.size[1] // 2))
-        surface.blit(text_surf, text_rect)
+            # print(self.number, tile_x,tile_y, self.pos_Gride)
+            text_rect = text_surf.get_rect(center=(tile_x + self.size[0] // 2,
+                                                   tile_y + self.size[1] // 2))
+            surface.blit(text_surf, text_rect)
 
 
 
