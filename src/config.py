@@ -37,7 +37,7 @@ for key in farger:
 max_depth =  50
 
 # Gride size
-grideSize = [4,4]
+grideSize = [3,3]
 pading = 50
 imageBorder = 10
 # text

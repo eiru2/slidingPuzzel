@@ -178,7 +178,7 @@ class Grid:
             return False
         self.preMove[-1].reverse()
         for move in self.preMove[-1]:
-            print(move)
+            #print(move)
             if len(self.preMove[-1]) == 0:
                 # print(1)
                 return False
@@ -237,6 +237,7 @@ class Grid:
                 # print(self.zeroPos)
                 moves.append((self.zeroPos[0] + x, self.zeroPos[1] + y))
                 diraction.append((x*-1,y*-1))
+        #moves [x,y]
         return moves, diraction
 
     def win(self):

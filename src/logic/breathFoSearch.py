@@ -73,6 +73,8 @@ def search(depth, max_depth, grid, curentmove,premove,currentPath:list,visited):
     for move, dirction in zip(moves,dirction):
         # print("nest move")
         grid.move(move)
+        grid.preMove.append([])
+        grid.preMove[-1].append(move)
         currentPath.append(move)
         if search(depth+1, max_depth, grid ,move,dirction,currentPath,visited):
             grid.undoMove()

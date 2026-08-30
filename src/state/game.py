@@ -35,7 +35,7 @@ class Game(State):
             
         if action["solver"]:
             # solve the puzzle
-            self.path = start_search(self.grid)
+            self.path = start_search_shortes(self.grid)
             print(self.path, "Path")
             cf.tick = 5
             self.fundPath = True
