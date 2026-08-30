@@ -23,6 +23,10 @@ class LeftClick:
 
         if app.timer > cf.TrasholdHolde:
             app.inputHold["left_click"] = True
+            app.timer = 0
+            app.time = False
+            app.clickCunter = 0
+
             
         if app.timer > cf.TresholdDubleClik and not app.clicked:
             app.timer = 0

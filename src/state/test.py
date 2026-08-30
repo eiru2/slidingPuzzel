@@ -4,93 +4,192 @@ import config as cf
 
 from state.statet import State
 import pygame as pg
+import numpy as np
+from sys import exit
+import config as cf
+from logic import perlin_noise
 
-class Shadow:
-    def __init__(self,pos,image,shadowSize:int):
-        """
-        A class that add shadow to image
-        Args:
-             pos: postion to where the image is going be drawn (ignors shadows)
-             image: The image that going get a shadow
-             shadowSize(int): how long the shadows are in pixel values
-        """
-        self.pos = pos
-        self.image = image
-        self.shadowSize = shadowSize
-        self.outliner = 5
-        self.imageShadow = self.shadows()
 
-    def shadows(self):
-        """
-        Create a shadow outliner plus a transpente sheet under the image
-        """
-        x,y = self.image.get_size()
-        img = pg.Surface((x + self.shadowSize+self.outliner,
-                               y + self.shadowSize+self.outliner), pg.SRCALPHA)
-        img.fill((0,0,0,230),
-                 (self.shadowSize,self.shadowSize,x+self.outliner,y+self.outliner))
-        img.fill((0, 0, 0, 30),
-                 (self.shadowSize,self.shadowSize, x,y))
+#https://openprocessing.org/@u315300/1776463#page-10
 
-        alph = 255//self.shadowSize
-        for i in range(self.shadowSize):
-            rectX = pg.Rect(self.shadowSize - i, 1, 1, y+self.shadowSize+self.outliner)
-            recty = pg.Rect(1, self.shadowSize - i, x+self.shadowSize+self.outliner, 1)
-            print(f"X: {rectX}, Y: {recty}  alpha: {255-(alph*i)}")
-            img.fill((0, 0, 0, 255-(alph*i)), recty)
-            img.fill((0,0,0,255-(alph*i)),rectX)
+test_gride = [
+    [1,0],
+    [0,1]
+]
 
-        img.blit(self.image,(self.shadowSize,self.shadowSize))
-        return img
+
+
+def bilinear_interpolation(noise,x,y):
+    #https://www.geeksforgeeks.org/maths/what-is-bilinear-interpolation/
+
+    x1 = int(x)
+    x2 = x1+1
+    y1 = int(y)
+    y2 = y1 + 1
+
+
+    # edge case
+    if x2 >= len(noise):
+        x2 = 0
+    if y2 >= len(noise[0]):
+        y2 = 0
+
+    noise_value11 = noise[x1][y1]
+    noise_value12 = noise[x1][y2]
+    noise_value21 = noise[x2][y1]
+    noise_value22 = noise[x2][y2]
+    value = (
+            noise_value11*((x2-x) * (y2-y) / (x2-x1) * (y2-y1)) +
+            noise_value21*((x-x1) * (y2-y) / (x2-x1) * (y2-y1)) +
+            noise_value12*((x2-x) * (y-y1) / (x2-x1) * (y2-y1)) +
+            noise_value22*((x-x1) * (y-y1) / (x2-x1) * (y2-y1))
+             )
+
+    return value
+
+
+
+
+class BackGround:
+    def __init__(self):
+        self.noise = perlin_noise(600,600,10)
+
+        self.xStep = 10
+        self.xFreq = 0.09
+        self.yFreq = 0.005
+        self.amplitude = 400
+        self.velocity = 0.01
+        self.waveCount = 20
+        self.counter = 0
+
+        self.points = []
+        for x in range(0,cf.WIDTH,self.xStep):
+            self.points.append(self.point(x, self.counter))
+
+    def update(self):
+        self.points = []
+
+        for x in range(0,cf.WIDTH,self.xStep):
+            self.points.append(self.point(x, self.counter))
+
+        self.counter +=1
+
+
+
+
+
+    def point(self,x,frame):
+        if int(frame*self.velocity) > len(self.noise[0]):
+            self.counter = 0
+
+        noise = bilinear_interpolation(self.noise,x*self.xFreq,frame*self.velocity)*self.amplitude
+        y = cf.HEIGHT/ 2+noise
+
+        return x,y
 
     def draw(self,surface):
-        """
-        Draw the image with outliner
-        Args:
-            surface: A pygame surface
-        """
-        surface.blit(self.imageShadow,(self.pos[0]-self.shadowSize,self.pos[1]-self.shadowSize))
+        #for point in self.points:
 
+            #try: pg.draw.circle(surface,(0,0,0),point,5)
+            #except:
+            #    print(point)
+             #   exit()
+
+        pg.draw.polygon(surface,(0,0,0),self.points)
+        pass
 
 class Test(State):
     def __init__(self, app):
         super().__init__(app)
-        image = pg.image.load('./Data/picture/tree.jpeg').convert_alpha()
-        self.imageRect = image.get_rect()
-        self.index = 1
-
-        imageX, imageY = image.get_size()
-        border = 10
-        pg.transform.chop(image, (100, 100, 10, 10))
-        imageOut = pg.Surface((imageX,imageY), pg.SRCALPHA)
-        imageOut.blit(image,(0,0))
-        imageOut.fill((0,0,0,0),(border,border,imageX-border*2,imageY-border*2))
-        #imageOut.set_colorkey((255,255,255))
-
-
-
-        imageInner = pg.Surface((imageX-border*2,imageY-border*2))
-        imageInner.blit(image,(-border,-border))
-
-        self.images = [image,imageOut ,imageInner]
-        self.imagePos = [(15,15),(15,15),(border+15,border+15)]
-
-        self.renderImage = Shadow(self.imagePos[self.index],self.images[self.index],10)
+        self.back = BackGround()
 
 
 
         
     def update(self, action, actioHold):
-        if action["arrow_left"]:
-            self.index -=1
-            self.renderImage = Shadow(self.imagePos[self.index], self.images[self.index], 10)
+        #print(action,actioHold)
+        self.back.update()
+        if action["left_duble_click"]:
+            print("2")
+        if action["left_click"]:
+            print(1)
+        if actioHold["left_click"]:
+            print(3)
 
-        if action["arrow_right"]:
-            self.index +=1
-            self.renderImage = Shadow(self.imagePos[self.index], self.images[self.index], 10)
 
     def render(self, surface):
-        self.renderImage.draw(surface)
-        #surface.blit(self.images[self.index], self.imagePos[self.index])
+        self.back.draw(surface)
+        #pg.draw.polygon(surface,(0,0,0),((100,100),(300,300),(100,50)))
+        pass
 
 
+
+"""
+// Based on original sketch by Takawo(https: // openprocessing.org / sketch / 1615214)
+
+let
+simplex;
+let
+palette;
+
+let
+xStep = 10;
+let
+xFreq = 0.003;
+let
+yFreq = 0.005;
+let
+amplitude = 100;
+let
+velocity = 0.0001;
+let
+waveCount = 20;
+
+function
+setup()
+{
+    createCanvas(600, 600);
+simplex = new
+SimplexNoise();
+palette = palettesList[floor(random(Object.keys(palettesList).length))];
+noStroke();
+}
+
+function
+draw()
+{
+    randomSeed(0);
+
+let
+c = shuffle(palette);
+background(c[0]);
+
+let
+yStep = height / waveCount;
+
+for (let y = 0; y <= height; y += yStep)
+{
+    push();
+translate(0, y);
+c = shuffle(palette);
+
+let
+gradient = drawingContext.createLinearGradient(0, height / 2, width, height / 2);
+gradient.addColorStop(0, c[0]);
+gradient.addColorStop(1, c[1]);
+drawingContext.fillStyle = gradient;
+
+beginShape();
+for (let x = 0; x <= width; x += xStep)
+{
+    let
+noise = simplex.noise3D(x * xFreq, y * yFreq, frameCount * velocity) * amplitude;
+vertex(x, noise);
+}
+vertex(width, height);
+vertex(0, height);
+endShape(CLOSE);
+pop();
+}
+}
+"""

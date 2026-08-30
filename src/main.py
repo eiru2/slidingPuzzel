@@ -19,7 +19,9 @@ class App:
 
         self.input = {"left_click":False, "left_duble_click":False, "arrow_left": False, "arrow_right": False, "scroll_wheel": 0, "textInput": "", "undoMove": False, "solver": False , "debug": False}
         self.inputHold = {"left_click":False}
-        
+
+        self.keyRestPerFraem = ["left_click","left_duble_click","scroll_wheel","textInput"]
+
         self.clock = pg.time.Clock()
         self.time = False
         self.timer = 0
@@ -48,7 +50,7 @@ class App:
             self.get_input()
             self.update()
             self.render()
-            self.rest_keys()
+            self.rest_keys(self.keyRestPerFraem)
             # print("click:",self.input, "hold:",self.inputHold, self.timer)
         
     def get_input(self):
@@ -117,7 +119,14 @@ class App:
                 if  event.key == pg.K_LEFT:
                     self.input["arrow_left"] = False
                 if  event.key == pg.K_RIGHT:
-                    self.input["arrow_right"] = False    
+                    self.input["arrow_right"] = False
+
+                if event.key in cf.undoMove:
+                    self.input["undoMove"] = False
+                if event.key in cf.solver:
+                    self.input["solver"] = False
+                if event.key in cf.debuger:
+                    self.input["debug"] = False
                     
             
             
@@ -134,7 +143,7 @@ class App:
         self.screen.fill(cf.farger["MØRK GRÅ"])
         #self.screen.fill(cf.farger["HVIT"])
         self.state_stack[-1].render(self.screen)
-        #self.showFPS(self.screen)
+        self.showFPS(self.screen)
         self.clock.tick(cf.tick)
         pg.display.update()
         
@@ -143,14 +152,14 @@ class App:
         """laster in den første staten
         """
         #self.title_screen = self.state_dict["lagre_kap"](self)
-        title_screen = self.state_dict["game"](self)
+        title_screen = self.state_dict["test"](self)
         
         self.state_stack.append(title_screen)
         
-    def rest_keys(self):
+    def rest_keys(self, rest):
         """rester input fra spiller
         """
-        for key in self.input.keys():
+        for key in rest:
             # For ikke bolske input
             if key == "textInput" or key == "scroll_wheel":
                 self.input["textInput"] = ""

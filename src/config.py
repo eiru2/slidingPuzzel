@@ -8,8 +8,8 @@ HEIGHT = 800
 tick = 0
 
 #click values 
-TrasholdHolde = 0.2 # sekkunder
-TresholdDubleClik = 0.1
+TrasholdHolde = 0.3 # sekkunder
+TresholdDubleClik = 0.15
 
 ScrollSpeed = 10
 
@@ -45,8 +45,8 @@ text_medium = 44
 
 
 # deffult controlls
-undoMove = [pg.K_u]
-solver = [pg.K_s]
-debuger = [pg.K_d] 
+undoMove = [pg.K_u,pg.K_a]
+solver = [pg.K_s,pg.K_b]
+debuger = [pg.K_d,pg.K_c]
 
 
