@@ -10,5 +10,5 @@ b = 5
 c = 0.5
 
 value = 0
-
-print((1 - c) * a + (c * b))
+rng = np.random.default_rng()
+print(rng.uniform(-1,1,(10,10)))

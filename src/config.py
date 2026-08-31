@@ -1,8 +1,8 @@
 import pygame as pg
 from cryptography.hazmat.primitives import padding
 
-WIDTH = 1600
-HEIGHT = 800
+WIDTH = 1900
+HEIGHT = 1200
 
 #frame rate
 tick = 0

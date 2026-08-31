@@ -7,7 +7,9 @@ import pygame as pg
 import numpy as np
 from sys import exit
 import config as cf
-from logic import perlin_noise
+from logic import perlin_noise, perlin_noise_3d
+from pygame import gfxdraw
+import noise
 
 
 #https://openprocessing.org/@u315300/1776463#page-10
@@ -19,7 +21,7 @@ test_gride = [
 
 
 
-def bilinear_interpolation(noise,x,y):
+def bilinear_interpolation(noise,x,y,z):
     #https://www.geeksforgeeks.org/maths/what-is-bilinear-interpolation/
 
     x1 = int(x)
@@ -27,65 +29,76 @@ def bilinear_interpolation(noise,x,y):
     y1 = int(y)
     y2 = y1 + 1
 
+    len_noise = len(noise)
 
-    # edge case
-    if x2 >= len(noise):
-        x2 = 0
-    if y2 >= len(noise[0]):
-        y2 = 0
 
-    noise_value11 = noise[x1][y1]
-    noise_value12 = noise[x1][y2]
-    noise_value21 = noise[x2][y1]
-    noise_value22 = noise[x2][y2]
+    noise_value11 = noise[x1%len_noise][y1%len_noise][z]
+    noise_value12 = noise[x1%len_noise][y2%len_noise][z]
+    noise_value21 = noise[x2%len_noise][y1%len_noise][z]
+    noise_value22 = noise[x2%len_noise][y2%len_noise][z]
+    #print((x2-x1),(y2-y1))
     value = (
             noise_value11*((x2-x) * (y2-y) / (x2-x1) * (y2-y1)) +
             noise_value21*((x-x1) * (y2-y) / (x2-x1) * (y2-y1)) +
             noise_value12*((x2-x) * (y-y1) / (x2-x1) * (y2-y1)) +
             noise_value22*((x-x1) * (y-y1) / (x2-x1) * (y2-y1))
              )
-
+    # change (x2-x1),(y2-y1) to 1 becasue alwasy 1
     return value
 
 
-
-
-class BackGround:
-    def __init__(self):
-        self.noise = perlin_noise(600,600,10)
-
-        self.xStep = 10
-        self.xFreq = 0.09
-        self.yFreq = 0.005
-        self.amplitude = 400
-        self.velocity = 0.01
-        self.waveCount = 20
-        self.counter = 0
+class Wave:
+    def __init__(self,noise ,xStep,xFreq,yFreq,amplitude,velocity,height):
+        self.xStep = xStep
+        self.xFreq = xFreq
+        self.yFreq = yFreq
+        self.amplitude = 300
+        self.velocity = velocity
+        self.height = height
 
         self.points = []
-        for x in range(0,cf.WIDTH,self.xStep):
-            self.points.append(self.point(x, self.counter))
+        self.noise = noise
+        self.counter = height
 
     def update(self):
         self.points = []
 
-        for x in range(0,cf.WIDTH,self.xStep):
+        for x in range(0,cf.WIDTH+self.xStep,self.xStep):
             self.points.append(self.point(x, self.counter))
-
-        self.counter +=1
-
-
-
-
+        self.counter += 1
 
     def point(self,x,frame):
         if int(frame*self.velocity) > len(self.noise[0]):
             self.counter = 0
 
-        noise = bilinear_interpolation(self.noise,x*self.xFreq,frame*self.velocity)*self.amplitude
-        y = cf.HEIGHT/ 2+noise
+        noise = bilinear_interpolation(self.noise,x*self.xFreq,frame*self.velocity,int(self.height*self.yFreq))
+        #print(type(noise),type(self.amplitude))
+        y = self.height + noise*self.amplitude
 
         return x,y
+
+
+
+class BackGround:
+    def __init__(self):
+        self.noise = perlin_noise_3d((100,100,100),(10,10,10))
+        #print(self.noise)
+
+        self.xStep = 10
+        self.xFreq = 0.01
+        self.yFreq = 0.05
+        self.amplitude = 40,50
+        self.velocity = 0.05
+        self.waveCount = 6
+
+        y = cf.HEIGHT/self.waveCount
+        self.waves = []
+        for wave in range(self.waveCount):
+            self.waves.append(Wave(self.noise, self.xStep, self.xFreq,self.yFreq, self.amplitude, self.velocity, y*wave))
+
+    def update(self):
+        for wave in self.waves:
+            wave.update()
 
     def draw(self,surface):
         #for point in self.points:
@@ -94,8 +107,18 @@ class BackGround:
             #except:
             #    print(point)
              #   exit()
+        for wave in range (len(self.waves)):
+            point = self.waves[wave].points
 
-        pg.draw.polygon(surface,(0,0,0),self.points)
+            if wave == len(self.waves)-1:
+                point.append((cf.WIDTH,cf.HEIGHT))
+                point.append((0, cf.HEIGHT))
+            else:
+                point = point + list(reversed(self.waves[wave+1].points))
+            gfxdraw.aapolygon(surface, point, cf.farger[cf.fargerKey[wave]])
+            gfxdraw.filled_polygon(surface, point, cf.farger[cf.fargerKey[wave]])
+            pg.draw.polygon(surface, cf.farger[cf.fargerKey[wave]], point)
+            #pg.draw.lines(surface, (0,0,0),False, self.waves[wave].points, 6)
         pass
 
 class Test(State):
