@@ -1,8 +1,7 @@
 import pygame as pg
-from cryptography.hazmat.primitives import padding
 
-WIDTH = 1900
-HEIGHT = 1200
+WIDTH = 1200
+HEIGHT = 800
 
 #frame rate
 tick = 0
@@ -37,7 +36,7 @@ for key in farger:
 max_depth =  50
 
 # Gride size
-grideSize = [3,3]
+grideSize = [5,5]
 pading = 50
 imageBorder = 10
 # text

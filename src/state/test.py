@@ -9,7 +9,7 @@ from sys import exit
 import config as cf
 from logic import perlin_noise, perlin_noise_3d
 from pygame import gfxdraw
-import noise
+
 
 
 #https://openprocessing.org/@u315300/1776463#page-10
@@ -84,11 +84,11 @@ class BackGround:
         self.noise = perlin_noise_3d((100,100,100),(10,10,10))
         #print(self.noise)
 
-        self.xStep = 10
+        self.xStep = 100
         self.xFreq = 0.01
-        self.yFreq = 0.05
-        self.amplitude = 40,50
-        self.velocity = 0.05
+        self.yFreq = 0.1
+        self.amplitude = 70
+        self.velocity = 0.01
         self.waveCount = 6
 
         y = cf.HEIGHT/self.waveCount
@@ -115,8 +115,8 @@ class BackGround:
                 point.append((0, cf.HEIGHT))
             else:
                 point = point + list(reversed(self.waves[wave+1].points))
-            gfxdraw.aapolygon(surface, point, cf.farger[cf.fargerKey[wave]])
-            gfxdraw.filled_polygon(surface, point, cf.farger[cf.fargerKey[wave]])
+            #gfxdraw.aapolygon(surface, point, cf.farger[cf.fargerKey[wave]])
+            #gfxdraw.filled_polygon(surface, point, cf.farger[cf.fargerKey[wave]])
             pg.draw.polygon(surface, cf.farger[cf.fargerKey[wave]], point)
             #pg.draw.lines(surface, (0,0,0),False, self.waves[wave].points, 6)
         pass
