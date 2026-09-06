@@ -1,22 +1,37 @@
 import pygame as pg
-import os 
-import config as cf
+import sys
+from noisePerlin import perlin_noise_3d
+from Drawtext import Text_FPS
+import fast_noise
 
-from state.statet import State
-import pygame as pg
-import numpy as np
-from sys import exit
-import config as cf
-from logic import perlin_noise, perlin_noise_3d,perlin3d_mine
-from pygame import gfxdraw
+import multiprocessing
+from concurrent.futures import ThreadPoolExecutor
 
+# Initialize Pygame
+pg.init()
 
-#https://openprocessing.org/@u315300/1776463#page-10
+# Set up the display
+WIDTH, HEIGHT =800, 600
+screen = pg.display.set_mode((800, 600))
+pg.display.set_caption("My Pygame Window")
 
-test_gride = [
-    [1,0],
-    [0,1]
-]
+def gradientWaves( window, left_colour, right_colour, points, wave_y ):
+    """ Draw a horizontal-gradient filled rectangle covering <target_rect> """
+    colour_rect = pg.Surface( ( 2, 2 ) ,pg.SRCALPHA)                                   # tiny! 2x2 bitmap
+    pg.draw.line( colour_rect, left_colour,  ( 0,0 ), ( 0,1 ) )            # left colour line
+    pg.draw.line( colour_rect, right_colour, ( 1,0 ), ( 1,1 ) )            # right colour line
+    miny = min(points, key=lambda x: x[1])[1]
+    maxy = max(points, key=lambda x: x[1])[1]
+    colour_rect = pg.transform.smoothscale( colour_rect, ( WIDTH, int(maxy-miny+50)) )  # stretch!
+
+    mask_surface = pg.Surface((WIDTH, HEIGHT), pg.SRCALPHA)
+
+# Define your polygon points (relative to the image size)
+    pg.draw.polygon(mask_surface, (255, 255, 255, 255), points)
+    
+    colour_rect.blit(mask_surface, (0, -miny), special_flags=pg.BLEND_RGBA_MIN)
+    
+    window.blit( colour_rect, (0,miny) )
 
 def trilinear_interpolation(noise,x,y,z):
     #https://www.geeksforgeeks.org/maths/what-is-bilinear-interpolation/
@@ -98,7 +113,7 @@ class Wave:
         self.xStep = xStep
         self.xFreq = xFreq
         self.yFreq = yFreq
-        self.amplitude = 300
+        self.amplitude = amplitude
         self.velocity = velocity
         self.height = height
 
@@ -108,20 +123,40 @@ class Wave:
 
     def update(self):
         self.points = []
+        args = []
+        if int(self.counter*self.velocity) > len(self.noise[0]):
+            self.counter = 0
+            
+        temp = []
+        for x in range(0,(WIDTH)+self.xStep,self.xStep):
+            self.points.append(self.point(x))
+           # temp.append(x)
+          #  if x%500 == 0:
+           #    ¤ args.append(temp)
 
-        for x in range(0,(cf.WIDTH)+self.xStep,self.xStep):
-            self.points.append(self.point(x, self.counter))
+                
+       # ¤args.append(temp)
+
+        #with ThreadPoolExecutor() as executor:
+         #   result = list(executor.map(self.point, args))
+        #for r in result:
+        #    self.points = self.points +r
+        # with multiprocessing.Pool(10) as p:
+        #     multiprocessing.freeze_support()
+        #     p.map(self.point, args)
         self.counter += 1
 
-    def point(self,x,frame):
-        if int(frame*self.velocity) > len(self.noise[0]):
-            self.counter = 0
+    def point(self,x):
 
         #noise = bilinear_interpolation(self.noise,x*self.xFreq,frame*self.velocity,int(self.height*self.yFreq))
         #noise = self.noise[int( x * self.xFreq)][int(self.height * self.yFreq)][int(frame * self.velocity)%100]
-        noise = trilinear_interpolation(self.noise, x * self.xFreq, self.height * self.yFreq, frame * self.velocity)
+
+        #noise = fast_noise.trilinear_interpolation(self.noise, x * self.xFreq, self.height * self.yFreq, self.counter * self.velocity)
+        noise = trilinear_interpolation(self.noise, x * self.xFreq, self.height * self.yFreq,
+                                                   self.counter * self.velocity)
         #print(type(noise),type(self.amplitude))
         y = self.height + noise*self.amplitude
+
 
         return x,y
 
@@ -144,7 +179,7 @@ class BackGround:
         self.noise = perlin_noise_3d((100,100,100),(10,10,10))
         #print(self.noise)
 
-        self.xStep = 20
+        self.xStep = 40
         self.xFreq = 0.01
         self.yFreq = 0.1
         self.amplitude = 70
@@ -153,12 +188,18 @@ class BackGround:
 
 
 
-        y = (cf.HEIGHT)/self.waveCount
+        y = (HEIGHT)/self.waveCount
         self.waves = []
         for wave in range(self.waveCount):
             self.waves.append(Wave(self.noise, self.xStep, self.xFreq,self.yFreq, self.amplitude, self.velocity, y*wave))
 
     def update(self):
+        # with ThreadPoolExecutor(max_workers=10) as executor:
+        #     # Submit the target method for each class instance in the list
+        #     futures = [executor.submit(obj.update) for obj in self.waves]
+            
+        # [future.result() for future in futures]
+        #print(self.waves[0].points)
         for wave in self.waves:
             wave.update()
 
@@ -173,128 +214,65 @@ class BackGround:
             point = self.waves[wave].points
 
             if wave == len(self.waves)-1:
-                point.append((cf.WIDTH,cf.HEIGHT))
-                point.append((0, cf.HEIGHT))
+                point.append((WIDTH,HEIGHT))
+                point.append((0, HEIGHT))
 
             else:
                 point = point + list(reversed(self.waves[wave+1].points))
             #gfxdraw.aapolygon(surface, point, cf.farger[cf.fargerKey[wave]])
             #gfxdraw.filled_polygon(surface, point, cf.farger[cf.fargerKey[wave]])
-            pg.draw.polygon(surface, cf.farger[cf.fargerKey[wave]], point)
+            pg.draw.polygon(surface, farger[fargerKey[wave]], point)
             #pg.draw.lines(surface, (0,0,0),False, self.waves[wave].points, 6)
         pass
 
     def drawGradian(self,surface):
-        for wave in range(len(self.waves)):
-            lenOfpoints = len(self.waves[wave].points)-1
-            for point in range(lenOfpoints):
-                points = 0
-                if wave == len(self.waves) - 1:
-                    points = (self.waves[wave].points[point], self.waves[wave].points[point + 1],
-                              (self.waves[wave].points[point+1][0],cf.HEIGHT), (self.waves[wave].points[point][0],cf.HEIGHT))
-                else:
-                    points = (self.waves[wave].points[point], self.waves[wave].points[point+1], self.waves[wave+1].points[point+1], self.waves[wave+1].points[point])
-                pg.draw.polygon(surface, colorTransform(rgb_color_pairs[wave],point/lenOfpoints), points)
-
-
-
-class Test(State):
-    def __init__(self, app):
-        super().__init__(app)
-        self.back = BackGround()
-
-
-
+        # for wave in range(len(self.waves)):
+        #     lenOfpoints = len(self.waves[wave].points)-1
+        #     for point in range(lenOfpoints):
+        #         points = 0
+        #         if wave == len(self.waves) - 1:
+        #             points = (self.waves[wave].points[point], self.waves[wave].points[point + 1],
+        #                       (self.waves[wave].points[point+1][0],HEIGHT), (self.waves[wave].points[point][0],HEIGHT))
+        #         else:
+        #             points = (self.waves[wave].points[point], self.waves[wave].points[point+1], self.waves[wave+1].points[point+1], self.waves[wave+1].points[point])
+        #         pg.draw.polygon(surface, colorTransform(rgb_color_pairs[wave],point/lenOfpoints), points)
         
-    def update(self, action, actioHold):
-        #print(action,actioHold)
-        self.back.update()
-        if action["left_duble_click"]:
-            print("2")
-        if action["left_click"]:
-            print(1)
-        if actioHold["left_click"]:
-            print(3)
+        for wave in range (len(self.waves)):
+            point = self.waves[wave].points
 
+            if wave == len(self.waves)-1:
+                point.append((WIDTH,HEIGHT))
+                point.append((0, HEIGHT))
+            
+            else:
+                point = point + list(reversed(self.waves[wave+1].points))
+            gradientWaves(surface, rgb_color_pairs[wave][0],rgb_color_pairs[wave][1], point,self.waves[wave].height)
 
-    def render(self, surface):
-        #tempSurface = pg.Surface((cf.WIDTH*8,cf.HEIGHT*8))
-        #tempSurface.fill((0,0,0))
-        self.back.drawGradian(surface)
-        #smooth = pg.transform.smoothscale(tempSurface, (cf.WIDTH,cf.HEIGHT))
-        #surface.blit(smooth,(0,0))
+clock =  pg.time.Clock()
+FPScounter = Text_FPS((0,0), (f"Fps: {str(round(clock.get_fps(),2))}"))
 
-        #pg.draw.polygon(surface,(0,0,0),((100,100),(300,300),(100,50)))
-        pass
+def showFPS(surface):
+    FPScounter.update(clock.get_fps())
+    FPScounter.draw(surface)
+    
+color1 = (255,0,0)
+color2 = (255,0,0)
+test = BackGround()
+# Main game loop
+running = True
+while running:
+    for event in pg.event.get():
+        if event.type == pg.QUIT:
+            running = False
+    test.update()
+    # Fill the screen with a black background
+    screen.fill((0, 0, 0))
+    test.drawGradian(screen)
+    showFPS(screen)
 
+    # Update the display
+    pg.display.flip()
+    clock.tick(0)
 
-
-"""
-// Based on original sketch by Takawo(https: // openprocessing.org / sketch / 1615214)
-
-let
-simplex;
-let
-palette;
-
-let
-xStep = 10;
-let
-xFreq = 0.003;
-let
-yFreq = 0.005;
-let
-amplitude = 100;
-let
-velocity = 0.0001;
-let
-waveCount = 20;
-
-function
-setup()
-{
-    createCanvas(600, 600);
-simplex = new
-SimplexNoise();
-palette = palettesList[floor(random(Object.keys(palettesList).length))];
-noStroke();
-}
-
-function
-draw()
-{
-    randomSeed(0);
-
-let
-c = shuffle(palette);
-background(c[0]);
-
-let
-yStep = height / waveCount;
-
-for (let y = 0; y <= height; y += yStep)
-{
-    push();
-translate(0, y);
-c = shuffle(palette);
-
-let
-gradient = drawingContext.createLinearGradient(0, height / 2, width, height / 2);
-gradient.addColorStop(0, c[0]);
-gradient.addColorStop(1, c[1]);
-drawingContext.fillStyle = gradient;
-
-beginShape();
-for (let x = 0; x <= width; x += xStep)
-{
-    let
-noise = simplex.noise3D(x * xFreq, y * yFreq, frameCount * velocity) * amplitude;
-vertex(x, noise);
-}
-vertex(width, height);
-vertex(0, height);
-endShape(CLOSE);
-pop();
-}
-}
-"""
+pg.quit()
+sys.exit()
