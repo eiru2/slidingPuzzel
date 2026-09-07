@@ -1,0 +1,1 @@
+﻿Pixel waves by rendring the waves at a higer qulty than smooth scale it down (expensive)

@@ -55,6 +55,7 @@ class Text_FPS(Text):
             fontSize (int, optional): størelse på fonten. Defaults to 45.
             fontColor (tuple, optional): Farge på fonten i rgb verdier. Defaults to cf.farger["HVIT"].
         """
+        self.fpsStore = []
         super().__init__(pos, text, font, fontSize, fontColor)
         self.render_pos = pos
         

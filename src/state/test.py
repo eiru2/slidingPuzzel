@@ -1,7 +1,3 @@
-import pygame as pg
-import os 
-import config as cf
-
 from state.statet import State
 import pygame as pg
 import numpy as np
@@ -17,6 +13,25 @@ test_gride = [
     [1,0],
     [0,1]
 ]
+
+
+def gradientWaves(surface,tempSurface, left_colour, right_colour, points, wave_y):
+    """ Draw a horizontal-gradient filled rectangle covering <target_rect> """
+    colour_rect = pg.Surface((2, 2), pg.SRCALPHA)  # tiny! 2x2 bitmap
+    pg.draw.line(colour_rect, left_colour, (0, 0), (0, 1))  # left colour line
+    pg.draw.line(colour_rect, right_colour, (1, 0), (1, 1))  # right colour line
+    miny = min(points, key=lambda x: x[1])[1]
+    maxy = max(points, key=lambda x: x[1])[1]
+    colour_rect = pg.transform.smoothscale(colour_rect, (cf.WIDTH, int(maxy - miny+10)))  # stretch!
+    # Define your polygon points (relative to the image size)
+    pg.draw.polygon(tempSurface, (255, 255, 255, 255), points)
+
+    colour_rect.blit(tempSurface, (0, -miny), special_flags=pg.BLEND_RGBA_MIN)
+
+    surface.blit(colour_rect, (0, miny))
+
+
+
 
 def trilinear_interpolation(noise,x,y,z):
     #https://www.geeksforgeeks.org/maths/what-is-bilinear-interpolation/
@@ -98,7 +113,7 @@ class Wave:
         self.xStep = xStep
         self.xFreq = xFreq
         self.yFreq = yFreq
-        self.amplitude = 300
+        self.amplitude = amplitude
         self.velocity = velocity
         self.height = height
 
@@ -141,22 +156,22 @@ rgb_color_pairs = [
 
 class BackGround:
     def __init__(self):
-        self.noise = perlin_noise_3d((100,100,100),(10,10,10))
+        self.noise = perlin_noise_3d((150,150,150),(10,10,10))
         #print(self.noise)
 
         self.xStep = 20
-        self.xFreq = 0.01
-        self.yFreq = 0.1
-        self.amplitude = 70
+        self.xFreq = 0.05
+        self.yFreq = 0.5
+        self.amplitude = 200
         self.velocity = 0.01
         self.waveCount = 5
 
 
 
-        y = (cf.HEIGHT)/self.waveCount
+        y = (cf.HEIGHT)/(self.waveCount-1)
         self.waves = []
         for wave in range(self.waveCount):
-            self.waves.append(Wave(self.noise, self.xStep, self.xFreq,self.yFreq, self.amplitude, self.velocity, y*wave))
+            self.waves.append(Wave(self.noise, self.xStep, self.xFreq,self.yFreq, self.amplitude, self.velocity, y*(wave-1)))
 
     def update(self):
         for wave in self.waves:
@@ -185,16 +200,19 @@ class BackGround:
         pass
 
     def drawGradian(self,surface):
+        tempSurface = pg.Surface((cf.WIDTH, cf.HEIGHT),  pg.SRCALPHA)
         for wave in range(len(self.waves)):
-            lenOfpoints = len(self.waves[wave].points)-1
-            for point in range(lenOfpoints):
-                points = 0
-                if wave == len(self.waves) - 1:
-                    points = (self.waves[wave].points[point], self.waves[wave].points[point + 1],
-                              (self.waves[wave].points[point+1][0],cf.HEIGHT), (self.waves[wave].points[point][0],cf.HEIGHT))
-                else:
-                    points = (self.waves[wave].points[point], self.waves[wave].points[point+1], self.waves[wave+1].points[point+1], self.waves[wave+1].points[point])
-                pg.draw.polygon(surface, colorTransform(rgb_color_pairs[wave],point/lenOfpoints), points)
+            point = self.waves[wave].points
+            #if wave == 0:
+            #    point.append(((0,0),(cf.WIDTH,0)))
+            if wave == len(self.waves) - 1:
+                point.append((cf.WIDTH, cf.HEIGHT))
+                point.append((0, cf.HEIGHT))
+
+            else:
+                point = point + list(reversed(self.waves[wave + 1].points))
+            gradientWaves(surface,tempSurface, rgb_color_pairs[wave][0], rgb_color_pairs[wave][1], point, self.waves[wave].height)
+            tempSurface.fill((0,0,0,0))
 
 
 
