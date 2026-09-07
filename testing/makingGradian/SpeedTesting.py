@@ -25,7 +25,13 @@ def gradientWaves(surface, left_colour, right_colour):
     colour_rect = pg.transform.smoothscale(colour_rect, (WINDOW_WIDTH, 100)) # stretch!
     surface.blit(colour_rect, (0,150))
 
+def r(surface, left_colour, right_colour):
+    gradient_surf = pg.Surface((2, 1))
+    gradient_surf.set_at((0, 0), left_colour)
+    gradient_surf.set_at((1, 0), right_colour)
 
+    colour_rect = pg.transform.smoothscale(gradient_surf, (WINDOW_WIDTH, 100)) # stretch!
+    surface.blit(colour_rect, (0,150))
 
 def colorInter(color1,color2, fraction):
 
@@ -64,21 +70,23 @@ while not finished:
     # Update the window
     window.fill((0, 0, 0))
     gradientWaves(window,(255,0,0),(0,255,0))
-
+    r(window,(255,0,0),(0,255,0))
     rectGra(window,(255,0,0),(0,255,0))
+    # pygame.draw.polygon(window,(0,0,0),((100,100) , (200,100), (200,200)))
+
+    # Clamp FPS
+    clock.tick()
     fps = clock.get_fps()
     fpsStore.append(fps)
     FPScounter.update(fps)
     FPScounter.draw(window)
-    # pygame.draw.polygon(window,(0,0,0),((100,100) , (200,100), (200,200)))
-    pg.display.flip()
-
-    # Clamp FPS
-    clock.tick(0)
     frameCounter +=1
-    if frameCounter == 10000:
+    if frameCounter%1000 == 0:
+        print(frameCounter)
+    if frameCounter >= 1:
         finished = True
 
+    pg.display.flip()
 
 end = time.time()
 print(f"Total runtime of the program is {end - start} seconds")

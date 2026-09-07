@@ -1,1 +1,4 @@
 ﻿Pixel waves by rendring the waves at a higer qulty than smooth scale it down (expensive)
+
+Waves:
+    Updating the waves than on the next wave render the waves
