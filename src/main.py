@@ -152,7 +152,7 @@ class App:
         """laster in den første staten
         """
         #self.title_screen = self.state_dict["lagre_kap"](self)
-        title_screen = self.state_dict["test"](self)
+        title_screen = self.state_dict["game"](self)
         
         self.state_stack.append(title_screen)
         

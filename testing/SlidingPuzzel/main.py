@@ -1,8 +1,12 @@
 import pygame as pg
 import sys
+
+from fontTools.cffLib import width
+
 from noisePerlin import perlin_noise_3d
 from Drawtext import Text_FPS
 import fast_noise
+import random
 
 import multiprocessing
 from concurrent.futures import ThreadPoolExecutor
@@ -11,27 +15,29 @@ from concurrent.futures import ThreadPoolExecutor
 pg.init()
 
 # Set up the display
-WIDTH, HEIGHT =800, 600
-screen = pg.display.set_mode((800, 600))
+WIDTH, HEIGHT =1800, 600
+screen = pg.display.set_mode((WIDTH, 600))
 pg.display.set_caption("My Pygame Window")
 
-def gradientWaves( window, left_colour, right_colour, points, wave_y ):
-    """ Draw a horizontal-gradient filled rectangle covering <target_rect> """
-    colour_rect = pg.Surface( ( 2, 2 ) ,pg.SRCALPHA)                                   # tiny! 2x2 bitmap
-    pg.draw.line( colour_rect, left_colour,  ( 0,0 ), ( 0,1 ) )            # left colour line
-    pg.draw.line( colour_rect, right_colour, ( 1,0 ), ( 1,1 ) )            # right colour line
+
+def gradianRect(left_colour,middel_colour, right_colour, points):
+    colour_rect = pg.Surface( ( 3, 1 ) ,pg.SRCALPHA)                                   # tiny! 2x2 bitmap
+    colour_rect.set_at((0, 0), left_colour)
+    colour_rect.set_at((1, 0), middel_colour)# right colour line
+    colour_rect.set_at((2, 0), right_colour)
     miny = min(points, key=lambda x: x[1])[1]
     maxy = max(points, key=lambda x: x[1])[1]
-    colour_rect = pg.transform.smoothscale( colour_rect, ( WIDTH, int(maxy-miny+50)) )  # stretch!
+    return pg.transform.smoothscale( colour_rect, ( WIDTH*2, int(maxy-miny+20))), miny  # stretch!
+
+def gradientWaves(surface, colour_rect, points, x):
+    """ Draw a horizontal-gradient filled rectangle covering <target_rect> """
+
 
     mask_surface = pg.Surface((WIDTH, HEIGHT), pg.SRCALPHA)
-
-# Define your polygon points (relative to the image size)
     pg.draw.polygon(mask_surface, (255, 255, 255, 255), points)
-    
-    colour_rect.blit(mask_surface, (0, -miny), special_flags=pg.BLEND_RGBA_MIN)
-    
-    window.blit( colour_rect, (0,miny) )
+    colour_rect[0].blit(mask_surface, (-x, -colour_rect[1]), special_flags=pg.BLEND_RGBA_MIN)
+
+    surface.blit(colour_rect[0], (x, colour_rect[1]))
 
 def trilinear_interpolation(noise,x,y,z):
     #https://www.geeksforgeeks.org/maths/what-is-bilinear-interpolation/
@@ -59,7 +65,6 @@ def trilinear_interpolation(noise,x,y,z):
     xd = x % 1
     yd = y % 1
     zd = z % 1
-
     value = (
                 noise_value000*(1 - xd)*(1 - yd)*(1 - zd) +
                 noise_value100 * xd * (1 - yd) * (1 - zd) +
@@ -71,6 +76,7 @@ def trilinear_interpolation(noise,x,y,z):
                 noise_value111 * xd * yd * zd
              )
     # change (x2-x1),(y2-y1) to 1 becasue alwasy 1
+
     return value
 
 def bilinear_interpolation(noise,x,y,z):
@@ -128,13 +134,13 @@ class Wave:
             self.counter = 0
             
         temp = []
-        for x in range(0,(WIDTH)+self.xStep,self.xStep):
+        for x in range(0,(WIDTH*2)+self.xStep,self.xStep):
             self.points.append(self.point(x))
            # temp.append(x)
           #  if x%500 == 0:
            #    ¤ args.append(temp)
 
-                
+
        # ¤args.append(temp)
 
         #with ThreadPoolExecutor() as executor:
@@ -160,17 +166,17 @@ class Wave:
 
         return x,y
 
-rgb_color_pairs = [
-    ((0, 0, 0), (255, 255, 255)),        # Black & White
-    ((10, 25, 47), (100, 255, 218)),     # Dark Navy & Teal/Cyan
-    ((26, 54, 93), (144, 205, 244)),     # Navy Blue & Light Blue
-    ((45, 55, 72), (237, 242, 247)),     # Charcoal & Off-White
-    ((74, 21, 75), (244, 237, 177)),     # Deep Plum & Soft Yellow
-    ((13, 92, 58), (209, 231, 221)),     # Forest Green & Mint
-    ((49, 20, 50), (232, 167, 161)),     # Dark Purple & Dusty Rose
-    ((17, 24, 39), (243, 244, 246)),     # Dark Gray & Light Gray
-    ((44, 22, 84), (181, 126, 220)),     # Violet & Lavender
-    ((0, 75, 73), (255, 107, 107))       # Deep Teal & Coral
+rgb_color_trios = [
+    [(0, 0, 0), (128, 128, 128), (255, 255, 255)],        # Black, Medium Gray & White
+    [(10, 25, 47), (23, 42, 69), (100, 255, 218)],        # Dark Navy, Slate Blue & Teal/Cyan
+    [(26, 54, 93), (43, 108, 176), (144, 205, 244)],      # Navy Blue, Mid Blue & Light Blue
+    [(45, 55, 72), (113, 128, 150), (237, 242, 247)],     # Charcoal, Slate Gray & Off-White
+    [(74, 21, 75), (133, 46, 122), (244, 237, 177)],      # Deep Plum, Magenta Purple & Soft Yellow
+    [(13, 92, 58), (40, 167, 69), (209, 231, 221)],       # Forest Green, Emerald Green & Mint
+    [(49, 20, 50), (112, 39, 90), (232, 167, 161)],       # Dark Purple, Orchid & Dusty Rose
+    [(17, 24, 39), (75, 85, 99), (243, 244, 246)],        # Dark Gray, Muted Gray & Light Gray
+    [(44, 22, 84), (107, 70, 193), (181, 126, 220)],      # Violet, Vivid Amethyst & Lavender
+    [(0, 75, 73), (78, 205, 196), (255, 107, 107)]        # Deep Teal, Pastel Turquoise & Coral
 ]
 
 
@@ -179,19 +185,23 @@ class BackGround:
         self.noise = perlin_noise_3d((100,100,100),(10,10,10))
         #print(self.noise)
 
-        self.xStep = 40
-        self.xFreq = 0.01
+        self.xStep = 50
+        self.xFreq = 0.05
         self.yFreq = 0.1
         self.amplitude = 70
-        self.velocity = 0.01
+        self.velocity = 0.1
         self.waveCount = 5
 
+        self.doPointsUpdate = True
+        self.colorRect = []
+        self.points = []
+        self.x = 0
 
 
-        y = (HEIGHT)/self.waveCount
+        y = (HEIGHT)/(self.waveCount-1)
         self.waves = []
         for wave in range(self.waveCount):
-            self.waves.append(Wave(self.noise, self.xStep, self.xFreq,self.yFreq, self.amplitude, self.velocity, y*wave))
+            self.waves.append(Wave(self.noise, self.xStep, self.xFreq,self.yFreq, self.amplitude, self.velocity, y*(wave-1)))
 
     def update(self):
         # with ThreadPoolExecutor(max_workers=10) as executor:
@@ -200,8 +210,40 @@ class BackGround:
             
         # [future.result() for future in futures]
         #print(self.waves[0].points)
-        for wave in self.waves:
-            wave.update()
+        if self.doPointsUpdate:
+            for wave in self.waves:
+                wave.update()
+            self.x-=1
+            if self.x <= -WIDTH:
+                self.x = 0
+                for image in range(len(self.waves)):
+                    rgb_color_trios[image][0], rgb_color_trios[image][1] = rgb_color_trios[image][1],rgb_color_trios[image][2]
+                    rgb_color_trios[image][2] = (random.randint(0,255),random.randint(0,255),random.randint(0,255))
+                    #self.waves[image].xOffset +=800
+
+            self.colorRect = []
+            i=0
+            self.points = self.findPoints()
+            for point in self.points:
+
+                self.colorRect.append(gradianRect(rgb_color_trios[i][0],rgb_color_trios[i][1],rgb_color_trios[i][2], point))
+                i+=1
+            self.doPointsUpdate = False
+
+
+    def findPoints(self):
+        listOfpoint = []
+        for wave in range(len(self.waves)):
+            point = self.waves[wave].points
+            if wave == len(self.waves)-1:
+                point.append((WIDTH*2, HEIGHT))
+                point.append((0, HEIGHT))
+
+            else:
+                point = point + list(reversed(self.waves[wave + 1].points))
+            listOfpoint.append(point)
+        return listOfpoint
+
 
     def draw(self,surface):
         #for point in self.points:
@@ -226,27 +268,15 @@ class BackGround:
         pass
 
     def drawGradian(self,surface):
-        # for wave in range(len(self.waves)):
-        #     lenOfpoints = len(self.waves[wave].points)-1
-        #     for point in range(lenOfpoints):
-        #         points = 0
-        #         if wave == len(self.waves) - 1:
-        #             points = (self.waves[wave].points[point], self.waves[wave].points[point + 1],
-        #                       (self.waves[wave].points[point+1][0],HEIGHT), (self.waves[wave].points[point][0],HEIGHT))
-        #         else:
-        #             points = (self.waves[wave].points[point], self.waves[wave].points[point+1], self.waves[wave+1].points[point+1], self.waves[wave+1].points[point])
-        #         pg.draw.polygon(surface, colorTransform(rgb_color_pairs[wave],point/lenOfpoints), points)
-        
-        for wave in range (len(self.waves)):
-            point = self.waves[wave].points
 
-            if wave == len(self.waves)-1:
-                point.append((WIDTH,HEIGHT))
-                point.append((0, HEIGHT))
-            
-            else:
-                point = point + list(reversed(self.waves[wave+1].points))
-            gradientWaves(surface, rgb_color_pairs[wave][0],rgb_color_pairs[wave][1], point,self.waves[wave].height)
+        if not self.doPointsUpdate:
+            i=0
+            for point in self.points:
+                #print(f"----------------{i}-------------------")
+                #print(point)
+                gradientWaves(surface, self.colorRect[i], point,self.x)
+                i+=1
+            self.doPointsUpdate = not  self.doPointsUpdate
 
 clock =  pg.time.Clock()
 FPScounter = Text_FPS((0,0), (f"Fps: {str(round(clock.get_fps(),2))}"))

@@ -1,36 +1,11 @@
-from state.statet import State
-import pygame as pg
+﻿import pygame as pg
 import numpy as np
-from sys import exit
 import config as cf
-from logic import perlin_noise, perlin_noise_3d,perlin3d_mine
-import random
+from logic import perlin_noise_3d
 from PIL import Image
-from pygame import gfxdraw
 
 
-#https://openprocessing.org/@u315300/1776463#page-10
 
-test_gride = [
-    [1,0],
-    [0,1]
-]
-
-
-#def gradientWaves(surface,tempSurface, left_colour, right_colour, points, wave_y):
-#    """ Draw a horizontal-gradient filled rectangle covering <target_rect> """
-#    colour_rect = pg.Surface((2, 2), pg.SRCALPHA)  # tiny! 2x2 bitmap
-#    pg.draw.line(colour_rect, left_colour, (0, 0), (0, 1))  # left colour line
-#    pg.draw.line(colour_rect, right_colour, (1, 0), (1, 1))  # right colour line
-#    miny = min(points, key=lambda x: x[1])[1]
-#    maxy = max(points, key=lambda x: x[1])[1]
-#    colour_rect = pg.transform.smoothscale(colour_rect, (cf.WIDTH, int(maxy - miny+10)))  # stretch!
-#    # Define your polygon points (relative to the image size)
-#    pg.draw.polygon(tempSurface, (255, 255, 255, 255), points)
-#
-#    colour_rect.blit(tempSurface, (0, -miny), special_flags=pg.BLEND_RGBA_MIN)
-#
-#    surface.blit(colour_rect, (0, miny))
 
 def gradianRect(left_colour,middel_colour ,right_colour, points):
     colour_rect = pg.Surface( ( 3, 1 ) ,pg.SRCALPHA)                                   # tiny! 2x2 bitmap
@@ -290,35 +265,3 @@ class BackGround:
                 i+=1
                 self.tempSurface.fill((0,0,0,0))
             self.doPointsUpdate = not  self.doPointsUpdate
-
-
-
-
-class Test(State):
-    def __init__(self, app):
-        super().__init__(app)
-        self.back = BackGround("Data/picture/tree.jpeg")
-
-
-
-        
-    def update(self, action, actioHold):
-        #print(action,actioHold)
-        self.back.update()
-        if action["left_duble_click"]:
-            print("2")
-        if action["left_click"]:
-            print(1)
-        if actioHold["left_click"]:
-            print(3)
-
-
-    def render(self, surface):
-        #tempSurface = pg.Surface((cf.WIDTH*8,cf.HEIGHT*8))
-        #tempSurface.fill((0,0,0))
-        self.back.drawGradian(surface)
-        #smooth = pg.transform.smoothscale(tempSurface, (cf.WIDTH,cf.HEIGHT))
-        #surface.blit(smooth,(0,0))
-
-        #pg.draw.polygon(surface,(0,0,0),((100,100),(300,300),(100,50)))
-        pass

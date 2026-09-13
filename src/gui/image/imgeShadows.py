@@ -23,7 +23,7 @@ class Shadow:
                                y + self.shadowSize+self.outliner), pg.SRCALPHA)
         img.fill((0,0,0,230),
                  (self.shadowSize,self.shadowSize,x+self.outliner,y+self.outliner))
-        img.fill((0, 0, 0, 30),
+        img.fill((0, 0, 0, 150),
                  (self.shadowSize,self.shadowSize, x,y))
 
         alph = 255//self.shadowSize

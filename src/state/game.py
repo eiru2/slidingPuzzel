@@ -1,5 +1,5 @@
 from state import State
-from objeckt import Grid
+from objeckt import Grid, BackGround
 from logic import start_search, start_search_shortes
 
 import config as cf
@@ -12,14 +12,17 @@ class Game(State):
     def __init__(self, app):
         super().__init__(app)
         self.buttons = []
-        image = pg.image.load('./Data/picture/gun.png').convert_alpha()
+        self.imagePath = './Data/picture/gun.png'
+        image = pg.image.load( self.imagePath).convert_alpha()
         self.grid = Grid(cf.grideSize, (cf.WIDTH , cf.HEIGHT),image)
         self.grid.shuffel(100000)
         print(self.grid.muligMoves([-1,-1]))
         self.path = []
         self.fundPath = False
+        self.backGround = BackGround( self.imagePath)
 
     def update(self, action, actioHold):
+        self.backGround.update()
         if action["left_click"]:
             print("click")
             mous_pos = pg.mouse.get_pos()
@@ -60,5 +63,7 @@ class Game(State):
 
     
     def render(self, surface):
+        self.backGround.drawGradian(surface)
         self.grid.draw(surface)
+
         # self.grid.debug()
