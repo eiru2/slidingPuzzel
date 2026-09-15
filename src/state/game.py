@@ -23,10 +23,11 @@ class Game(State):
 
     def update(self, action, actioHold):
         self.backGround.update()
+        self.grid.update()
         if action["left_click"]:
             print("click")
             mous_pos = pg.mouse.get_pos()
-            self.grid.update(mous_pos)
+            self.grid.click(mous_pos)
         
         if action["debug"]:
             print("debug")
@@ -35,6 +36,9 @@ class Game(State):
             print(self.grid.preMove)
             print("complet status")
             print(self.grid.win())
+            print(self.grid.doAnimation)
+            for tile in self.grid.tileAnimation:
+                print(tile.offset)
             
         if action["solver"]:
             # solve the puzzle

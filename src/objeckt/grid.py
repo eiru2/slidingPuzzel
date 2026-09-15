@@ -10,14 +10,33 @@ class Tile:
         self.size = list(size)
         self.font = pg.font.Font(None, int(self.size[1] * 0.6))   # scale text to tile height
 
+        self.offset = [0,0]
+        self.offsetSpeed = 10
+
+
         self.image = picture
 
         self.showNumber = False
 
     
     def update(self):
-        pass
-    
+        print(self.offset)
+        if not self.offset[0] == 0:
+            sign = abs(self.offset[0])/self.offset[0]
+            self.offset[0] += sign*self.offsetSpeed*-1
+
+            if abs(self.offset[0]) < self.offsetSpeed:
+                self.offset[0] = 0
+            return False
+
+        elif not self.offset[1] == 0:
+            sign = abs(self.offset[1])/self.offset[1]
+            self.offset[1] += sign*self.offsetSpeed*-1
+            if abs(self.offset[1]) < self.offsetSpeed:
+                self.offset[1] = 0
+            return False
+        return  True
+
     def draw(self,surface, pos):
         if self.number == 0:
             return 0
@@ -25,12 +44,15 @@ class Tile:
             pg.draw.rect(surface,
             farger[fargerKey[self.number%len(fargerKey)]],
             (
-                pos[0] + self.pos_gride[0]*self.size[0],
-                pos[1] + self.pos_gride[1]*self.size[1],
+                pos[0] + self.pos_gride[0]*self.size[0] + self.offset[0],
+                pos[1] + self.pos_gride[1]*self.size[1] + self.offset[1],
                 self.size[0],
                 self.size[1])
                 )
-        rect = (pos[0] + self.pos_gride[0]*self.size[0],pos[1] + self.pos_gride[1]*self.size[1],self.size[0],self.size[1])
+        rect = (pos[0] + self.pos_gride[0]*self.size[0]+ self.offset[0] ,
+                pos[1] + self.pos_gride[1]*self.size[1] + self.offset[1],
+                self.size[0],
+                self.size[1])
 
         surface.blit(self.image,rect)
         #pg.draw.rect(surface,(0,0,0),rect,1)
@@ -40,8 +62,8 @@ class Tile:
             text_surf = self.font.render(str(self.number), True, (255, 0, 0))
 
             # center the text inside the tile
-            tile_x = pos[0] + self.pos_gride[0] * self.size[0]
-            tile_y = pos[1] + self.pos_gride[1] * self.size[1]
+            tile_x = pos[0] + self.pos_gride[0] * self.size[0] + self.offset[0]
+            tile_y = pos[1] + self.pos_gride[1] * self.size[1] + self.offset[1]
 
             # print(self.number, tile_x,tile_y, self.pos_Gride)
             text_rect = text_surf.get_rect(center=(tile_x + self.size[0] // 2,
@@ -57,6 +79,8 @@ class Grid:
 
         self.rutter = list(rutter)
         self.windowSize = list(windowSize)
+        self.doAnimation = False
+        self.tileAnimation = []
 
         self.tileSizeRect = [
             (self.windowSize[0] - self.border-pading) // self.rutter[0],
@@ -103,7 +127,15 @@ class Grid:
         self.preMove = []
         self.vinnestate = self.return_gride_state()
         
-    def update(self, pos_mous):
+    def update(self):
+        if self.doAnimation:
+            print("cat")
+
+            for tile in self.tileAnimation:
+                if tile.update():
+                    self.tileAnimation.remove(tile)
+
+    def click(self,pos_mous):
         pos = [
             int((pos_mous[0]-self.pos[0]) // self.tileSize),
             int((pos_mous[1]-self.pos[1]) // self.tileSize)
@@ -116,11 +148,17 @@ class Grid:
             # self.preMove.append(numbers)
             # print(numbers)
             # print(moves.reverse())
+            self.doAnimation = True
             self.preMove.append([])
             moves.reverse()
             for move in moves:
+                self.tileAnimation.append(self.grid[move[0]][move[1]])
+
                 self.preMove[-1].append(self.move(move))
-    
+                self.tileAnimation[-1].offset[0] = (move[0] -  self.tileAnimation[-1].pos_gride[0])*self.tileSize
+                self.tileAnimation[-1].offset[1] = (move[1] - self.tileAnimation[-1].pos_gride[1]) * self.tileSize
+                print( self.tileAnimation[-1].offset)
+
     def move(self, move):
         if self.grid[move[0]][move[1]].number == 0:
             # print(0)

@@ -5,10 +5,11 @@ import random
 
 
 
-a = 10
-b = 5
-c = 0.5
+array = [1,2,3,4,5,6]
 
-value = 0
-rng = np.random.default_rng()
-print(rng.uniform(-1,1,(10,10)))
+
+for a in array:
+    if a%2 == 0:
+        array.remove(a)
+
+print(array)
