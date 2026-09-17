@@ -9,12 +9,12 @@ import pygame as pg
 
 
 class Game(State):
-    def __init__(self, app):
+    def __init__(self, app, gridSize, imagePath):
         super().__init__(app)
         self.buttons = []
-        self.imagePath = './Data/picture/gun.png'
+        self.imagePath = cf.imagePath + imagePath
         image = pg.image.load( self.imagePath).convert_alpha()
-        self.grid = Grid(cf.grideSize, (cf.WIDTH , cf.HEIGHT),image)
+        self.grid = Grid(gridSize, (cf.WIDTH , cf.HEIGHT),image)
         self.grid.shuffel(100000)
         print(self.grid.muligMoves([-1,-1]))
         self.path = []

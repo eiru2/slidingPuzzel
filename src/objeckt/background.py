@@ -148,7 +148,7 @@ class ColorPicker:
 
 
     def count_colors_2(self) -> list:  # no need to give colors
-        colors_count_list = self.image.getcolors(maxcolors = 1000000000)
+        colors_count_list = self.image.getcolors(maxcolors = 10000000)
         #print(self.image.getcolors(maxcolors = 100000))
         sumOfPixel = 0
         for count, c_bgr in colors_count_list:

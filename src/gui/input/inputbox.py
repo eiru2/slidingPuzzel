@@ -5,17 +5,18 @@ import config as con
 
 
 class Inputbox:
-    def __init__(self,pos:list,size:list, coler:tuple, text:str, font:str = None, fontSize:int = 32):
+    def __init__(self,pos:list,size:list, coler:tuple, text:str, font:str = None, fontSize:int = 32, identifier="inputBox"):
         """_summary_
 
         Args:
-            pos (list): postios til input boksen
+            pos (list or tuple): postios til input boksen
             size (list): storelse til input boksen
             coler (tuple): hvilken farge input boksen skal ha
             text (str): placeholder tekst
             font (str, optional): hviken type font. Defaults to None.
             fontSize (int, optional): storles po fonten. Defaults to 32.
         """
+        self.identifier = identifier
         self.pos = pos
         self.size = size
         
@@ -33,14 +34,21 @@ class Inputbox:
             pygame rect: lagger en rect for colision
         """
         return pygame.Rect(self.pos[0], self.pos[1], self.size[0],self.size[1])  
-    
+
     def click(self, pos):
         if not self.rect().collidepoint(pos):
             self.active = False
-            return False
+            return self.identifier
         self.active = not self.active
-        return True
-    
+        return self.identifier
+
+    def rest(self):
+        self.inputText = ""
+        self.active = False
+
+    def returnInput(self):
+        return self.inputText
+
     def update(self, key):
         if self.active:
             # print("cat")
@@ -80,3 +88,4 @@ class Inputbox:
         
         # rect = self.rect()
         # pygame.draw.rect(surface, self.coler, rect)
+

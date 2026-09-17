@@ -5,7 +5,7 @@ from controlls import LeftClick
 
 from gui.text.Drawtext import Text_FPS
 
-from state import Menu, Test, InputDebuger, Game
+from state import Menu, Test, InputDebuger, Game, ChoseGrideSize
 
 
 class App:
@@ -27,13 +27,14 @@ class App:
         self.timer = 0
         self.FPScounter = Text_FPS((0,0), (f"Fps: {str(round(self.clock.get_fps(),2))}"))
         
-        
+
         self.state_stack = []
         self.state_dict = {
             "inputDebuger" : InputDebuger,
             "menu": Menu,
             "test": Test,
             "game": Game,
+            "chooseGrideSize": ChoseGrideSize
         }
         
         self.leftclick = LeftClick()
@@ -152,20 +153,29 @@ class App:
         """laster in den første staten
         """
         #self.title_screen = self.state_dict["lagre_kap"](self)
-        title_screen = self.state_dict["game"](self)
+        title_screen = self.state_dict["menu"](self)
         
         self.state_stack.append(title_screen)
         
-    def rest_keys(self, rest):
+    def rest_keys(self, rest=False):
         """rester input fra spiller
         """
-        for key in rest:
-            # For ikke bolske input
-            if key == "textInput" or key == "scroll_wheel":
-                self.input["textInput"] = ""
-                self.input["scroll_wheel"] = 0
-            else:
-                self.input[key] = False
+        if not rest:
+            for key in self.input.keys():
+                # For ikke bolske input
+                if key == "textInput" or key == "scroll_wheel":
+                    self.input["textInput"] = ""
+                    self.input["scroll_wheel"] = 0
+                else:
+                    self.input[key] = False
+        else:
+            for key in rest:
+                # For ikke bolske input
+                if key == "textInput" or key == "scroll_wheel":
+                    self.input["textInput"] = ""
+                    self.input["scroll_wheel"] = 0
+                else:
+                    self.input[key] = False
     
     def showFPS(self, surface):
         self.FPScounter.update(self.clock.get_fps())

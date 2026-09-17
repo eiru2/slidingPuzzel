@@ -3,6 +3,10 @@ import pygame as pg
 WIDTH = 1200
 HEIGHT = 800
 
+# Data path
+imagePath = 'Data/picture/'
+
+
 #frame rate
 tick = 0
 

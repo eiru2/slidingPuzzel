@@ -20,7 +20,7 @@ class Tile:
 
     
     def update(self):
-        print(self.offset)
+        #print(self.offset)
         if not self.offset[0] == 0:
             sign = abs(self.offset[0])/self.offset[0]
             self.offset[0] += sign*self.offsetSpeed*-1
@@ -129,11 +129,14 @@ class Grid:
         
     def update(self):
         if self.doAnimation:
-            print("cat")
+            #print("cat")
 
             for tile in self.tileAnimation:
                 if tile.update():
                     self.tileAnimation.remove(tile)
+
+            if len(self.tileAnimation) == 0:
+                self.doAnimation = False
 
     def click(self,pos_mous):
         pos = [

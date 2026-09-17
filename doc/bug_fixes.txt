@@ -2,3 +2,8 @@
 
 Waves:
     Updating the waves than on the next wave render the waves
+
+
+
+Optimasion:
+    Lagre farg combinationen når lagre bilde

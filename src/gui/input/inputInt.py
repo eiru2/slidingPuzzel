@@ -1,0 +1,95 @@
+﻿import pygame
+from sys import path
+import config as con
+
+
+class InputboxInt:
+    def __init__(self, pos:list|tuple, size: list, coler: tuple, text: str, font: str = None, fontSize: int = 32,
+                 identifier="inputBox"):
+        """_summary_
+
+        Args:
+            pos (list or tuple): postios til input boksen
+            size (list): storelse til input boksen
+            coler (tuple): hvilken farge input boksen skal ha
+            text (str): placeholder tekst
+            font (str, optional): hviken type font. Defaults to None.
+            fontSize (int, optional): storles po fonten. Defaults to 32.
+        """
+        self.identifier = identifier
+        self.pos = pos
+        self.size = size
+
+        self.coler = coler
+        self.active = False
+
+        self.font = pygame.font.Font(font, fontSize)
+        self.plassHolderText = text
+        self.inputInt = ""
+
+    def rect(self):
+        """_summary_
+
+        Returns:
+            pygame rect: lagger en rect for colision
+        """
+        return pygame.Rect(self.pos[0], self.pos[1], self.size[0], self.size[1])
+
+    def click(self, pos):
+        if not self.rect().collidepoint(pos):
+            self.active = False
+            return self.identifier
+        self.active = not self.active
+        return self.identifier
+
+    def rest(self):
+        self.inputInt = ""
+        self.active = False
+
+    def returnInput(self) -> int:
+        if self.inputInt == "":
+            return False
+        return int(self.inputInt)
+
+    def update(self, key):
+        if self.active:
+            # print("cat")
+            # print(key)
+            if key == "return":
+                print(self.inputInt)
+                self.inputInt = ""
+                self.active = False
+            elif key == "del":
+                self.inputInt = self.inputInt[:-1]
+            else:
+                try:
+                    int(key)
+                    self.inputInt += key
+                except ValueError:
+                    pass
+
+
+    def draw(self, surface):
+        """_summary_
+
+        Args:
+            surface (pygame display): hvor input boksen skal tegnes
+        """
+        box = pygame.Surface((self.size[0], self.size[1]), pygame.SRCALPHA, 32).convert_alpha()
+        box.fill(self.coler)
+        if self.active or self.inputInt != "":
+            textimg = self.font.render(self.inputInt, True, con.farger["SVART"])
+            text_width, text_height = self.font.size(self.inputInt)
+        else:
+            textimg = self.font.render(self.plassHolderText, True, con.farger["SVART"])
+            text_width, text_height = self.font.size(self.plassHolderText)
+
+        # rect = self.rect()
+        center_x = (self.size[0] - text_width) / 2
+        center_y = (self.size[1] - text_height) / 2
+        box.blit(textimg, (center_x, center_y))
+        surface.blit(box, self.pos)
+
+        # rect = self.rect()
+        # pygame.draw.rect(surface, self.coler, rect)
+

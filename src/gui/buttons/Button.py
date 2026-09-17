@@ -10,7 +10,7 @@ class Button:
         """
             for å lagge en knap som returner
         Args:
-            pos (list): kordinater til knapen (top-left)
+            pos (list or tuple): kordinater til knapen (top-left)
             text (str, optional): Hva som skal sto po kanpen. Defaults to "none".
             textCooler (tuple, optional): farge po teksten. Defaults to (0,0,0).
             fontSize (int, optional): storelse po teksten. Defaults to 11.

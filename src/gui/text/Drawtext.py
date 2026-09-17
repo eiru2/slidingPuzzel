@@ -2,27 +2,35 @@ import pygame as pg
 import config as cf
 
 class Text:
-    def __init__(self, pos:list,text:str, font:str=None ,fontSize:int=45, fontColor:tuple=cf.farger["HVIT"]):
+    def __init__(self, pos:list|tuple,text:str, font:str=None ,fontSize:int=45, fontColor:tuple=cf.farger["HVIT"], showText = True):
         """Lager et tekst objekt
 
         Args:
-            pos (list): posisjn med der x er mitt i og y er po toppen
+            pos (list or tuple): posisjn med der x er mitt i og y er po toppen
             text (str): Hav som skal stå
             font (str, optional): font på teksten. Defaults to None som gir pygame defult font.
             fontSize (int, optional): størelse på fonten. Defaults to 45.
             fontColor (tuple, optional): Farge på fonten i rgb verdier. Defaults to cf.farger["HVIT"].
+            showText (bool): Vis text eller ikke
         """
         self.text = text
         self.font = pg.font.SysFont(font, fontSize)
         self.font_color = fontColor
-        
+
+        self.showTextBool = showText
         
         self.pos = list(pos) 
         x,y = self.font.size(self.text)
         # print(x)
         self.render_pos = list(pos)
         # self.render_pos[0] = self.pos[0] - x/2 # center med bredden
-        
+
+    def hiddeText(self):
+        self.showTextBool = False
+
+    def showText(self):
+        self.showTextBool = True
+
     def update(self):
         """oppdater teksten
         """
@@ -36,8 +44,9 @@ class Text:
             surface (pygame.Surface): hvor tekste blir tegnet
             offset: Brukt til å skifte på text med en beveglig kammera
         """
-        img = self.font.render(self.text, True, self.font_color)
-        surface.blit(img,self.render_pos)
+        if self.showTextBool:
+            img = self.font.render(self.text, True, self.font_color)
+            surface.blit(img,self.render_pos)
         
         
         
