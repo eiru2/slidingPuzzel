@@ -1,11 +1,14 @@
+from itertools import dropwhile
+
 import pygame as pg
+import os
 import config as cf
 
 from controlls import LeftClick
 
 from gui.text.Drawtext import Text_FPS
 
-from state import Menu, Test, InputDebuger, Game, ChoseGrideSize
+from state import Menu, Test, InputDebuger, Game, ChoseGrideSize, SaveImage
 
 
 class App:
@@ -17,8 +20,11 @@ class App:
         # self.screen_render = pg.display.set_mode((cf.BREDDE,cf.Hoyte))
         self.run = True
 
+        self.mousePos = (-1,-1)
         self.input = {"left_click":False, "left_duble_click":False, "arrow_left": False, "arrow_right": False, "scroll_wheel": 0, "textInput": "", "undoMove": False, "solver": False , "debug": False}
         self.inputHold = {"left_click":False}
+        self.dropFile = None
+        self.dropImported = False
 
         self.keyRestPerFraem = ["left_click","left_duble_click","scroll_wheel","textInput"]
 
@@ -34,7 +40,8 @@ class App:
             "menu": Menu,
             "test": Test,
             "game": Game,
-            "chooseGrideSize": ChoseGrideSize
+            "chooseGrideSize": ChoseGrideSize,
+            "saveImage": SaveImage
         }
         
         self.leftclick = LeftClick()
@@ -72,6 +79,20 @@ class App:
                 self.run = False
                 pg.quit()
                 exit()
+
+            if event.type == pg.DROPFILE:
+
+                if isinstance(self.state_stack[-1],self.state_dict["saveImage"]):
+                    file_extension = os.path.splitext(event.file)[1]
+                    if file_extension in cf.acceptedFiles:
+                        try:
+                            self.dropFile = pg.image.load(event.file)
+                            self.dropImported = True
+                        except:
+                            print("Sorry we couldn't import your image")
+
+
+
 
             if event.type == pg.MOUSEBUTTONDOWN:
                 if event.button == 1:
@@ -153,7 +174,7 @@ class App:
         """laster in den første staten
         """
         #self.title_screen = self.state_dict["lagre_kap"](self)
-        title_screen = self.state_dict["menu"](self)
+        title_screen = self.state_dict["saveImage"](self)
         
         self.state_stack.append(title_screen)
         

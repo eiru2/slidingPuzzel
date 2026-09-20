@@ -5,7 +5,7 @@ HEIGHT = 800
 
 # Data path
 imagePath = 'Data/picture/'
-
+acceptedFiles = [".bmp", ".jpg", ".png"]
 
 #frame rate
 tick = 0

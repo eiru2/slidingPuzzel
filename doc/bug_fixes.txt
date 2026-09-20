@@ -3,7 +3,7 @@
 Waves:
     Updating the waves than on the next wave render the waves
 
-
+New random beacuse it isent random
 
 Optimasion:
     Lagre farg combinationen når lagre bilde
