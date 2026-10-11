@@ -81,15 +81,16 @@ class App:
                 exit()
 
             if event.type == pg.DROPFILE:
-
                 if isinstance(self.state_stack[-1],self.state_dict["saveImage"]):
                     file_extension = os.path.splitext(event.file)[1]
+                    print(event.file)
                     if file_extension in cf.acceptedFiles:
                         try:
-                            self.dropFile = pg.image.load(event.file)
+                           # self.dropFile = pg.image.load(event.file).convert()
+                            self.dropFile = event.file
                             self.dropImported = True
                         except:
-                            print("Sorry we couldn't import your image")
+                            print("Sorry couldn't import your image")
 
 
 
